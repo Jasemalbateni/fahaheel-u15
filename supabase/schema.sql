@@ -123,6 +123,8 @@ begin
   if not exists (select 1 from public.staff s where lower(s.email) = lower(new.email)) then
     raise exception 'هذا الإيميل غير مصرح له بالدخول';
   end if;
+  -- الطاقم المسجل في جدول staff يتفعّل مباشرة بدون رسالة تأكيد على الإيميل
+  new.email_confirmed_at := coalesce(new.email_confirmed_at, now());
   return new;
 end $$;
 revoke all on function private.block_non_staff_signup() from public, anon, authenticated;

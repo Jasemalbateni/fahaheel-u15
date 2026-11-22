@@ -165,7 +165,10 @@
       const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + location.pathname } });
       if (error) throw new Error(/غير مصرح|Database error/i.test(error.message) ? "هذا الإيميل غير مسجل ضمن طاقم الفريق" : /registered/i.test(error.message) ? "الحساب مفعّل من قبل — سجّل دخولك" : error.message);
       if (data.session) return afterSession(data.session);
-      return "confirm";
+      // الطاقم يتفعّل مباشرة من قاعدة البيانات، فندخل على طول بدون رسالة إيميل
+      const r = await sb.auth.signInWithPassword({ email, password });
+      if (r.error || !r.data.session) throw new Error("الحساب مفعّل من قبل بكلمة مرور ثانية — سجّل دخولك بها");
+      return afterSession(r.data.session);
     },
     async signOut() { clearInterval(pollTimer); try { localStorage.removeItem(CACHE_KEY); } catch {} if (sb) await sb.auth.signOut(); me = null; },
 

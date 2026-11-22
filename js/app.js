@@ -288,6 +288,18 @@
     render();
   };
 
+  /** شعار المنافس: نشيل الخلفية البيضاء المحيطة فقط (الأبيض داخل الشعار يبقى) */
+  function dropWhiteBg(c) {
+    const ctx = c.getContext("2d"), w = c.width, h = c.height, d = ctx.getImageData(0, 0, w, h), px = d.data;
+    const white = (i) => px[i * 4 + 3] > 0 && px[i * 4] > 236 && px[i * 4 + 1] > 236 && px[i * 4 + 2] > 236;
+    const seen = new Uint8Array(w * h), q = [];
+    const push = (i) => { if (!seen[i] && white(i)) { seen[i] = 1; q.push(i); } };
+    for (let x = 0; x < w; x++) { push(x); push((h - 1) * w + x); }
+    for (let y = 0; y < h; y++) { push(y * w); push(y * w + w - 1); }
+    while (q.length) { const i = q.pop(), x = i % w; px[i * 4 + 3] = 0; if (x > 0) push(i - 1); if (x < w - 1) push(i + 1); if (i >= w) push(i - w); if (i < w * (h - 1)) push(i + w); }
+    ctx.putImageData(d, 0, 0);
+  }
+
   /* ---------- event form ---------- */
   function eventForm(ev, presetDate, presetType) {
     const conf = C.conf(), isNew = !ev;
@@ -317,7 +329,7 @@
         $("#lgIn", w).addEventListener("change", (x) => {
           const f = x.target.files[0]; if (!f) return;
           const im = new Image(), url = URL.createObjectURL(f);
-          im.onload = () => { const sc = Math.min(1, 200 / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); newLogo = c.toDataURL("image/png"); $("#lgPrev", w).innerHTML = `<img src="${newLogo}" alt="" style="width:44px;height:44px;object-fit:contain">`; URL.revokeObjectURL(url); };
+          im.onload = () => { const sc = Math.min(1, 200 / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); dropWhiteBg(c); newLogo = c.toDataURL("image/png"); $("#lgPrev", w).innerHTML = `<img src="${newLogo}" alt="" style="width:44px;height:44px;object-fit:contain">`; URL.revokeObjectURL(url); };
           im.onerror = () => toast("تعذّر قراءة الصورة", true);
           im.src = url;
         });

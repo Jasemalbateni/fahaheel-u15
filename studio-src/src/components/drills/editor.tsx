@@ -1676,12 +1676,18 @@ export default function Editor({ initial, readOnly = false, onChange, onSave, ti
         {(sheetBody || toolStrip || (quickBar && !ov.trash)) && (
           <div className="absolute inset-x-0 bottom-0 z-20 bg-navy/95 backdrop-blur-md border-t border-white/[0.08] rounded-t-2xl shadow-[0_-12px_30px_-12px_rgba(0,0,0,0.5)] fade-up">
             {sheetBody && (
-              <div className="relative max-h-[46dvh] overflow-y-auto studio-scroll">
-                <button type="button" onClick={() => setSheet(null)} className="absolute top-2 left-2 z-10 h-8 w-8 grid place-items-center rounded-lg text-silver bg-white/[0.06]" aria-label="إغلاق">
-                  <X size={16} />
-                </button>
-                {sheet === "players" || sheet === "equipment" ? <div className="text-[11.5px] font-bold text-silver/80 px-3.5 pt-3">اسحب للأعلى إلى الملعب أو اضغط للإضافة</div> : null}
-                {sheetBody}
+              <div>
+                {/* always-visible bar: tap anywhere on it (or the button) to minimise the sheet back to the board */}
+                <div className="relative h-10 shrink-0 border-b border-white/[0.07]" onClick={() => setSheet(null)}>
+                  <span className="absolute left-1/2 top-1.5 -translate-x-1/2 h-1 w-10 rounded-full bg-white/25" aria-hidden="true" />
+                  <button type="button" onClick={(e) => { e.stopPropagation(); setSheet(null); }} className="absolute left-2 top-1.5 h-8 px-3 rounded-lg text-white bg-white/[0.1] text-[12.5px] font-bold inline-flex items-center gap-1" aria-label="تصغير الخيارات">
+                    <X size={15} /> تصغير
+                  </button>
+                </div>
+                <div className="max-h-[40dvh] overflow-y-auto studio-scroll">
+                  {sheet === "players" || sheet === "equipment" ? <div className="text-[11.5px] font-bold text-silver/80 px-3.5 pt-3">اسحب للأعلى إلى الملعب أو اضغط للإضافة</div> : null}
+                  {sheetBody}
+                </div>
               </div>
             )}
             {!sheetBody && toolStrip}

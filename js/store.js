@@ -2,9 +2,9 @@
 (function () {
   const CFG = window.FAH_CONFIG || {};
   const DEMO = !CFG.url || CFG.demo || /[?&]demo\b/.test(location.search);
-  const TABLES = ["staff", "players", "events", "attendance", "match_stats", "sheets", "settings"];
+  const TABLES = ["staff", "players", "events", "attendance", "match_stats", "sheets", "settings", "drawings"];
   const SHEET_COLS = "id,kind,title,date,age,coach,goal_tech,goal_phys,summary,updated_at";
-  const D = { staff: [], players: [], events: [], attendance: [], match_stats: [], sheets: [], settings: [] };
+  const D = { staff: [], players: [], events: [], attendance: [], match_stats: [], sheets: [], settings: [], drawings: [] };
   const sheetData = new Map();  // id -> full sheet object
   const sheetThumbs = new Map(); // id -> { drillId: dataURL }
   let thumbsLoaded = false;

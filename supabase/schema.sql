@@ -151,3 +151,16 @@ insert into public.staff (name, role, sort) values
   ('مشعل المنصور', 'مدرب الفريق', 1),
   ('جاسم الباطني', 'مساعد المدرب', 2),
   ('عبدالله الرتيبان', 'إداري الفريق', 3);
+
+-- رسومات استوديو الرسم
+create table public.drawings (
+  id text primary key,
+  title text,
+  board jsonb not null default '{}'::jsonb,
+  thumb text,
+  updated_at timestamptz not null default now()
+);
+alter table public.drawings enable row level security;
+revoke all on public.drawings from anon;
+grant select, insert, update, delete on public.drawings to authenticated;
+create policy staff_all on public.drawings for all to authenticated using ((select private.is_staff())) with check ((select private.is_staff()));

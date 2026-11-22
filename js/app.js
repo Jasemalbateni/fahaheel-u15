@@ -21,6 +21,7 @@
     more: I('<circle cx="5" cy="12" r="1.600"/><circle cx="12" cy="12" r="1.600"/><circle cx="19" cy="12" r="1.600"/>'),
     next: I('<path d="M15 6l-6 6 6 6"/>'), prev: I('<path d="M9 6l6 6-6 6"/>'),
     check: I('<path d="M5 12.500l4.500 4.500L19 7.500"/>', 'stroke-width="2.600"'),
+    draw: I('<path d="M3 21l3.500-1 11-11-2.500-2.500-11 11zM14 5.500l2.500 2.500M17 3.500l3.500 3.500-2 2-3.500-3.500z"/>'),
     edit: I('<path d="M4 20h4L19 9l-4-4L4 16zM13.500 6.500l4 4"/>'),
     down: I('<path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/>'),
     print: I('<path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 14h10v7H7z"/>'),
@@ -30,7 +31,7 @@
 
   IC.prefs = IC.settings;
   const NAV = [
-    ["today", "اليوم"], ["calendar", "التقويم"], ["players", "اللاعبون"], ["attendance", "الحضور"], ["drills", "التمارين"],
+    ["today", "اليوم"], ["calendar", "التقويم"], ["players", "اللاعبون"], ["attendance", "الحضور"], ["drills", "التمارين"], ["draw", "استوديو الرسم"],
     ["matches", "المباريات"], ["stats", "الإحصائيات"], ["report", "تقرير الموسم"], ["prefs", "الإعدادات"]
   ];
   const STATUS_CHIP = { "متاح": "ok", "مصاب": "red", "مريض": "warn", "موقوف": "dark", "غائب بعذر": "info" };
@@ -52,7 +53,7 @@
       <div id="app">
         <aside class="side">
           <a class="club" href="#today"><img src="${LOGO}" alt="شعار نادي الفحيحيل"><div><b>نادي الفحيحيل</b><span>U15 · FAHAHEEL SC</span></div></a>
-          <nav>${NAV.map(([k, t], i) => `${i === 5 || i === 8 ? '<div class="sep"></div>' : ""}<a href="#${k}" data-nav="${k}">${IC[k]}<span>${t}</span></a>`).join("")}</nav>
+          <nav>${NAV.map(([k, t], i) => `${i === 6 || i === 9 ? '<div class="sep"></div>' : ""}<a href="#${k}" data-nav="${k}">${IC[k]}<span>${t}</span></a>`).join("")}</nav>
           <div class="who"><b>${esc(me.name || "")}</b>${esc(me.role || "")}<div class="sync" id="sync"></div></div>
         </aside>
         <header class="mtop"><img src="${LOGO}" alt=""><div><b>نادي الفحيحيل</b><span>U15 · FAHAHEEL SC</span></div><span class="sp"></span><span class="sync" id="sync-m"></span></header>

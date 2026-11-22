@@ -142,7 +142,7 @@ window.SheetCore = function (root, S, hooks) {
         <span style="font-size:12px">PNG · JPG · صورة من TacticalPad أو من الجوال · أو الصق صورة (Ctrl+V)</span>
         ${d.img ? `<img class="thumb" src="${d.img}" alt="">` : ""}
       </label>
-      ${d.img ? `<div class="imgtools"><button type="button" class="btn" id="imgDel">حذف الصورة</button></div>` : ""}`;
+      <div class="imgtools"><button type="button" class="btn red" id="imgDraw">${d.board ? "تعديل الرسم في الاستوديو" : "ارسم التمرين في الاستوديو"}</button>${d.img ? `<button type="button" class="btn" id="imgDel">حذف الصورة</button>` : ""}</div>`;
 
     h += `<h2>المحتوى</h2>`;
     if (m) {
@@ -233,7 +233,8 @@ window.SheetCore = function (root, S, hooks) {
       exportPdf([isMatch(d) ? matchPage(d, kicker) : drillPage(d, kicker)], baseName() + " - " + (i + 1) + " " + (d.title || "تمرين"));
       return;
     }
-    if (b.id === "imgDel") { e.preventDefault(); cur().img = ""; cur().thumb = ""; full(); return; }
+    if (b.id === "imgDel") { e.preventDefault(); cur().img = ""; cur().thumb = ""; cur().board = null; full(); return; }
+    if (b.id === "imgDraw") { e.preventDefault(); const d = cur(); hooks.draw(d, (blob) => setImage(blob, d)); return; }
     const act = b.dataset.act;
     if (act) {
       e.stopPropagation();
@@ -265,8 +266,11 @@ window.SheetCore = function (root, S, hooks) {
   };
   document.addEventListener("paste", onPaste);
 
-  function setImage(file) {
+  /** target = the drill a studio drawing belongs to (keeps its editable board); a plain upload drops the board */
+  function setImage(file, target) {
     if (!file || !file.type.startsWith("image/")) return;
+    const dd = target || cur();
+    if (!target) dd.board = null;
     if (!root.isConnected) return;
     const url = URL.createObjectURL(file);
     const im = new Image();
@@ -278,8 +282,8 @@ window.SheetCore = function (root, S, hooks) {
       ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
       ctx.drawImage(im, 0, 0, c.width, c.height);
       URL.revokeObjectURL(url);
-      cur().img = c.toDataURL("image/jpeg", 0.84);
-      cur().thumb = window.SheetApp.thumb(c);
+      dd.img = c.toDataURL("image/jpeg", target ? 0.9 : 0.84);
+      dd.thumb = window.SheetApp.thumb(c);
       full();
     };
     im.onerror = () => toast("تعذّر قراءة الصورة", true);
@@ -499,7 +503,7 @@ window.SheetCore = function (root, S, hooks) {
 
   renderEditor(); renderPreview();
   return {
-    get S() { return S; }, full, toast, ask,
+    get S() { return S; }, full, toast, ask, setImage,
     flush() { clearTimeout(saveTimer); hooks.save(S); },
     setActive(i) { S.active = Math.max(0, Math.min(i, S.drills.length - 1)); renderEditor(); renderPreview(); },
     destroy() { clearTimeout(saveTimer); document.removeEventListener("paste", onPaste); }
@@ -619,6 +623,7 @@ window.SheetApp = (function () {
       });
     },
     importSheets,
+    draw(d, apply) { window.Draw.drawForSheet(d, apply); },
     newSheet() { if (core) core.flush(); App.go("sheet-new"); },
     back() { close(); }
   };
@@ -668,6 +673,7 @@ window.SheetApp = (function () {
     document.body.appendChild(root);
     document.documentElement.classList.add("sheet-open");
     core = window.SheetCore(root, S, hooks);
+    if (!id && opts.drawing) { const d0 = core.S.drills[0]; d0.title = opts.drawing.title || ""; d0.board = JSON.parse(JSON.stringify(opts.drawing.board)); core.S.kind = "drill"; core.setImage(opts.drawing.blob, d0); }
     setState(existed ? "محفوظة ✓" : "ورقة جديدة");
     if (existed) backfillThumbs(core.S).then((ch) => { if (ch && core) core.flush(); });
   }

@@ -1,0 +1,209 @@
+/* استوديو الرسم — نفس واجهة الاستوديو الأصلي، بألوان نادي الفحيحيل. يُبنى بـ build.sh ولا يُعدّل يدوياً */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+@source "./src";
+
+:root {
+  --navy: #141213; --navy-900: #0c0b0b; --navy-700: #2b2728; --navy-100: #e6e0e1; --navy-50: #f5f3f3;
+  --ice: #e02a31; --ice-600: #b31219; --ice-100: #fdecec; --ice-50: #fff5f5;
+  --silver: #cfc7c9; --silver-200: #e6e0e1; --silver-100: #f5f3f3;
+  --gold: #e7b53c; --gold-100: #fbf0d3; --error: #d64545; --error-100: #fbe4e4;
+  --ink: #141213; --ink-2: #5e5658;
+  --font-tajawal: "Tajawal"; --font-barlow: "Barlow Condensed"; --font-bukra: "Tajawal";
+  font-family: "Tajawal", system-ui, sans-serif; color: #fff; direction: rtl; line-height: 1.5;
+  -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+}
+@theme inline {
+  --color-navy: var(--navy);
+  --color-navy-900: var(--navy-900);
+  --color-navy-700: var(--navy-700);
+  --color-navy-100: var(--navy-100);
+  --color-navy-50: var(--navy-50);
+  --color-ice: var(--ice);
+  --color-ice-600: var(--ice-600);
+  --color-ice-100: var(--ice-100);
+  --color-ice-50: var(--ice-50);
+  --color-silver: var(--silver);
+  --color-silver-200: var(--silver-200);
+  --color-silver-100: var(--silver-100);
+  --color-gold: var(--gold);
+  --color-gold-100: var(--gold-100);
+  --color-error: var(--error);
+  --color-error-100: var(--error-100);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --font-sans: var(--font-tajawal), system-ui, sans-serif;
+  --font-data: var(--font-barlow), var(--font-tajawal), sans-serif;
+  --font-display: var(--font-bukra), var(--font-tajawal), sans-serif;
+  --radius-card: 14px;
+  --shadow-card: 0 1px 2px rgba(20, 18, 19, 0.06), 0 8px 24px -12px rgba(20, 18, 19, 0.18);
+  --shadow-pop: 0 12px 40px -12px rgba(20, 18, 19, 0.35);
+}
+
+
+button, [role="button"] { touch-action: manipulation; }
+.num, .en { font-family: var(--font-barlow), var(--font-tajawal), sans-serif; font-variant-numeric: tabular-nums; }
+/* form controls */
+@utility field {
+  @apply w-full rounded-xl border border-silver-200 bg-white px-3.5 py-2.5 text-[16px] sm:text-[15px] text-ink placeholder:text-ink-2/60 outline-none transition focus:border-ice focus:ring-4 focus:ring-ice/15;
+  min-height: 44px;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 text-[15px] font-bold transition select-none disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap;
+  /* 44px touch target by default; an explicit h-* on the element wins (components layer) */
+  height: 44px;
+}
+
+/* actions that appear on hover on desktop, but are always visible on touch screens */
+@utility reveal {
+  opacity: 1;
+  transition: opacity 0.15s;
+  @media (hover: hover) and (pointer: fine) {
+    opacity: 0;
+    .group:hover &,
+    .group:focus-within & {
+      opacity: 1;
+    }
+  }
+}
+/* button variants live in the components layer so size utilities (h-8, w-8, px-0…) can override them */
+@layer components {
+  .btn-primary {
+    @apply btn bg-navy text-white hover:bg-navy-700 active:scale-[0.98];
+  }
+  .btn-accent {
+    @apply btn bg-ice text-navy-900 hover:bg-ice-600 hover:text-white active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn text-navy hover:bg-navy-50;
+  }
+  .btn-outline {
+    @apply btn border border-silver-200 bg-white text-navy hover:border-ice hover:bg-ice-50;
+  }
+  .btn-danger {
+    @apply btn bg-error-100 text-error hover:bg-error hover:text-white;
+  }
+  .btn-danger-solid {
+    @apply btn bg-error text-white hover:bg-error/90 active:scale-[0.98];
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-up {
+  /* "backwards" (not "both"): a retained transform would turn this element into the containing
+     block for position:fixed children (drag overlays, modals) and offset them */
+  animation: fade-up 0.25s ease-out backwards;
+}
+
+/* ---------- drill studio (tactics board) ---------- */
+.t-ar {
+  font-family: var(--font-tajawal), sans-serif;
+  font-weight: 700;
+}
+.t-num {
+  font-family: var(--font-barlow), var(--font-tajawal), sans-serif;
+  font-weight: 700;
+}
+.studio {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+}
+.studio input,
+.studio textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+.studio-canvas {
+  background-color: #0e0d0d;
+  background-image: radial-gradient(rgba(199, 206, 217, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.studio-select [data-id] {
+  cursor: move;
+}
+.studio-select [data-handle] {
+  cursor: grab;
+}
+.studio-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(199, 206, 217, 0.25) transparent;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.studio-field {
+  width: 100%;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 700;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+@media (min-width: 640px) {
+  .studio-field {
+    font-size: 14px;
+  }
+}
+.studio-field:focus {
+  border-color: var(--ice);
+  box-shadow: 0 0 0 3px rgba(215, 25, 32, 0.3);
+}
+.studio-field::placeholder {
+  color: rgba(199, 206, 217, 0.45);
+}
+.studio-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.studio-range::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--ice) 0 var(--pct), rgba(255, 255, 255, 0.14) var(--pct) 100%);
+}
+.studio-range::-moz-range-track {
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--ice) 0 var(--pct), rgba(255, 255, 255, 0.14) var(--pct) 100%);
+}
+.studio-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  margin-top: -7.5px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--ice);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+.studio-range::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--ice);
+}

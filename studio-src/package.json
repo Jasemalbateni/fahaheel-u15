@@ -1,0 +1,8 @@
+{
+  "name": "fahaheel-studio",
+  "private": true,
+  "description": "استوديو الرسم لموقع فحيحيل — يُبنى إلى ../js/studio.js و ../css/studio.css",
+  "scripts": { "build": "bash build.sh" },
+  "dependencies": { "clsx": "^2.1.1", "lucide-react": "^1.48.0", "react": "19.2.8", "react-dom": "19.2.8" },
+  "devDependencies": { "@tailwindcss/cli": "^4", "tailwindcss": "^4", "esbuild": "^0.25.0", "postcss": "^8", "typescript": "^5", "@types/react": "^19", "@types/react-dom": "^19" }
+}

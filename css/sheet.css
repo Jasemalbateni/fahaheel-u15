@@ -268,3 +268,4 @@
 .sheetapp .topbar { top: 0; padding-top: calc(8px + env(safe-area-inset-top, 0px)); }
 html.sheet-open, html.sheet-open body { overflow: hidden; }
 .sheetapp #btn-back { padding-inline: 12px; }
+.sheetapp .imgtools .btn.red { background: var(--red); border-color: var(--red); color: #fff; }

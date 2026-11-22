@@ -382,3 +382,6 @@ table.t { width: 100%; border-collapse: collapse; font-size: 14px; }
   .card { box-shadow: none; break-inside: avoid; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ---------- drawing studio overlay ---------- */
+.fah-studio { position: fixed; inset: 0; z-index: 110; }

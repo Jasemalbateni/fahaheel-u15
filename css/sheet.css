@@ -1,0 +1,270 @@
+/* ورقة تمرين فحيحيل — نفس تصميم الصفحة الأصلية، محصور داخل .sheetapp */
+.sheetapp {
+  --red: #d71920;        /* Fahaheel red (logo is #ED1B23; slightly deeper for text contrast) */
+  --red-soft: #fdecec;
+  --black: #141213;
+  --ink: #141213;
+  --ink-2: #5e5658;      /* warm grey, biased toward the red */
+  --line: #ddd6d7;
+  --zebra: #f8f6f6;
+  --board: #efeced;      /* diagram background on the sheet */
+  --white: #ffffff;
+  --ok: #1d7a46;
+  --f-ar: "Tajawal", "Segoe UI", Tahoma, sans-serif;
+  --f-num: "Barlow Condensed", "Tajawal", "Arial Narrow", sans-serif;
+  color-scheme: light;
+}
+.sheetapp * { box-sizing: border-box; }
+.sheetapp { background: var(--white); }
+.sheetapp {
+  margin: 0; color: var(--ink); font-family: var(--f-ar); font-size: 15px; direction: rtl;
+}
+.sheetapp-none { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--black); }
+.sheetapp .num, .sheetapp .en { font-family: var(--f-num); }
+.sheetapp button { font: inherit; }
+
+/* ---------- toolbar ---------- */
+.sheetapp .topbar {
+  background: var(--black); color: #fff; min-height: 62px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding-block: 8px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  border-bottom: 3px solid var(--red);
+}
+.sheetapp .topbar .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.sheetapp .topbar .brand img { width: 38px; height: 38px; }
+.sheetapp .topbar h1 { font-size: 17px; font-weight: 800; margin: 0; white-space: nowrap; }
+.sheetapp .topbar .en { color: #b9b1b3; font-size: 14px; font-weight: 600; letter-spacing: 1px; }
+.sheetapp .topbar .spacer { flex: 1; }
+.sheetapp .seg { display: inline-flex; background: rgba(255,255,255,.1); border-radius: 8px; padding: 3px; gap: 2px; }
+.sheetapp .seg button { border: 0; background: transparent; color: #cfc8ca; font-weight: 700; font-size: 13.5px; padding: 6px 14px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+.sheetapp .seg button.on { background: #fff; color: var(--black); }
+.sheetapp .tools { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.sheetapp .btn {
+  border: 0; border-radius: 6px; padding: 9px 15px; font-weight: 700; font-size: 14px;
+  color: var(--black); background: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  white-space: nowrap; transition: background .15s, transform .1s;
+}
+.sheetapp .btn:hover { background: #f1eded; }
+.sheetapp .btn:active { transform: translateY(1px); }
+.sheetapp .btn.red { background: var(--red); color: #fff; }
+.sheetapp .btn.red:hover { background: #bd141a; }
+.sheetapp .btn.ghost { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.3); }
+.sheetapp .btn.ghost:hover { background: rgba(255,255,255,.08); }
+.sheetapp .btn:disabled { opacity: .5; pointer-events: none; }
+.sheetapp .btn:focus-visible, .sheetapp .seg button:focus-visible, .sheetapp .icon:focus-visible, .sheetapp .add:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+.sheetapp .btn svg { width: 16px; height: 16px; flex: 0 0 auto; }
+
+/* ---------- workspace ---------- */
+.sheetapp .workspace { display: grid; grid-template-columns: 400px minmax(0, 1fr); min-height: calc(100vh - 62px); }
+@media (max-width: 1100px) {
+  .sheetapp .workspace { grid-template-columns: minmax(0, 1fr); }
+  .sheetapp .preview { order: -1; }
+}
+
+/* ---------- editor ---------- */
+.sheetapp .editor {
+  background: #fff; border-left: 1px solid var(--line); padding: 22px 22px 60px;
+  overflow: auto; max-height: calc(100vh - 62px); position: sticky; top: 62px;
+}
+@media (max-width: 1100px) {
+  .sheetapp .editor { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--line);
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+}
+.sheetapp .editor h2 {
+  font-size: 13px; font-weight: 800; color: var(--red); margin: 22px 0 10px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--line); display: flex; gap: 6px; align-items: center;
+}
+.sheetapp .editor h2:first-child { margin-top: 0; }
+.sheetapp .field { margin-bottom: 12px; min-width: 0; }
+.sheetapp .field label { display: block; font-size: 13px; font-weight: 500; color: var(--ink-2); margin-bottom: 4px; }
+.sheetapp .field input, .sheetapp .field textarea, .sheetapp .field select {
+  width: 100%; border: 1.5px solid var(--line); border-radius: 6px; padding: 8px 10px; font: inherit;
+  font-size: 16px; color: var(--ink); background: #fff; min-height: 40px;
+}
+@media (min-width: 768px) { .sheetapp .field input, .sheetapp .field textarea, .sheetapp .field select { font-size: 14px; } }
+.sheetapp .field input:focus, .sheetapp .field textarea:focus, .sheetapp .field select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(215,25,32,.15); }
+.sheetapp .field textarea { min-height: 88px; resize: vertical; line-height: 1.6; }
+.sheetapp .field .hint { font-size: 12px; color: var(--ink-2); margin-top: 4px; }
+.sheetapp .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sheetapp .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+.sheetapp .drop {
+  display: block; border: 2px dashed var(--line); border-radius: 8px; padding: 18px; text-align: center;
+  color: var(--ink-2); font-size: 13px; background: var(--zebra); cursor: pointer; transition: border-color .15s, background .15s;
+}
+.sheetapp .drop.over { border-color: var(--red); background: var(--red-soft); }
+.sheetapp .drop strong { color: var(--ink); }
+.sheetapp .drop input { display: none; }
+.sheetapp .drop .thumb { display: block; max-width: 100%; max-height: 120px; margin: 8px auto 0; border-radius: 4px; }
+.sheetapp .imgtools { display: flex; gap: 8px; margin-top: 8px; }
+.sheetapp .imgtools .btn { background: var(--zebra); padding: 6px 12px; font-size: 13px; }
+
+.sheetapp .drills { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.sheetapp .drill-row {
+  display: flex; align-items: center; gap: 6px; border: 1.5px solid var(--line); border-radius: 6px;
+  padding: 6px 8px; background: #fff; cursor: pointer;
+}
+.sheetapp .drill-row.on { border-color: var(--red); background: var(--red-soft); }
+.sheetapp .drill-row .n {
+  font-family: var(--f-num); font-weight: 700; font-size: 15px; min-width: 22px; height: 22px; border-radius: 999px;
+  background: var(--black); color: #fff; display: grid; place-items: center;
+}
+.sheetapp .drill-row.on .n { background: var(--red); }
+.sheetapp .drill-row .t { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sheetapp .drill-row .t.empty { color: var(--ink-2); font-weight: 500; }
+.sheetapp .drill-row .d { font-size: 12px; color: var(--ink-2); }
+.sheetapp .drill-row .cup { color: var(--red); display: grid; }
+.sheetapp .icon {
+  border: 0; background: transparent; color: var(--ink-2); width: 30px; height: 30px; border-radius: 6px;
+  display: grid; place-items: center; cursor: pointer;
+}
+.sheetapp .icon:hover { background: var(--zebra); color: var(--ink); }
+.sheetapp .icon:disabled { opacity: .3; pointer-events: none; }
+.sheetapp .icon.del:hover { color: var(--red); }
+.sheetapp .icon svg { width: 15px; height: 15px; }
+.sheetapp .add {
+  width: 100%; border: 1.5px dashed var(--line); background: var(--zebra); color: var(--ink); border-radius: 6px;
+  padding: 9px; font-weight: 700; font-size: 13.5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.sheetapp .add:hover { border-color: var(--red); background: var(--red-soft); }
+.sheetapp .add.dark { background: var(--black); color: #fff; border: 1.5px solid var(--black); }
+.sheetapp .add.dark:hover { background: #2a2627; }
+.sheetapp .add svg { width: 16px; height: 16px; }
+
+.sheetapp .lib { border: 1.5px solid var(--black); border-radius: 10px; padding: 10px 12px; margin-bottom: 16px; background: var(--zebra); }
+.sheetapp .lib-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.sheetapp .lib-top b { font-size: 14px; }
+.sheetapp .lib-top .num { font-size: 15px; color: var(--red); font-weight: 700; }
+.sheetapp .lib-top .sp { flex: 1; }
+.sheetapp .lib-x { border: 0; background: transparent; color: var(--ink-2); font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.sheetapp .lib-x:hover { background: #fff; color: var(--red); }
+.sheetapp .lib-row { display: flex; gap: 6px; align-items: center; }
+.sheetapp .lib-row select { flex: 1; min-width: 0; border: 1.5px solid var(--line); border-radius: 6px; padding: 8px; font: inherit; font-size: 15px; font-weight: 700; color: var(--ink); background: #fff; min-height: 40px; }
+.sheetapp .lib-row .icon { background: #fff; border: 1.5px solid var(--line); width: 40px; height: 40px; font-size: 18px; font-weight: 800; color: var(--ink); }
+.sheetapp .mode { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+.sheetapp .mode button { border: 1.5px solid var(--line); background: #fff; border-radius: 8px; padding: 10px 12px; text-align: start; cursor: pointer; display: grid; gap: 2px; }
+.sheetapp .mode button b { font-size: 14.5px; color: var(--ink); }
+.sheetapp .mode button span { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+.sheetapp .mode button.on { border-color: var(--red); background: var(--red-soft); box-shadow: inset 0 0 0 1px var(--red); }
+.sheetapp .mode button.on b { color: var(--red); }
+.sheetapp .mode button:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+.sheetapp .add.ghosty { margin-top: 8px; background: #fff; }
+.sheetapp .actions { display: flex; flex-direction: column; gap: 8px; margin-top: 26px; }
+.sheetapp .actions .btn { background: var(--black); color: #fff; padding: 12px; justify-content: center; }
+.sheetapp .actions .btn.red { background: var(--red); }
+.sheetapp .actions .btn.sub { background: var(--zebra); color: var(--ink); }
+.sheetapp .saved-note { font-size: 12px; color: var(--ink-2); text-align: center; }
+
+/* ---------- preview ---------- */
+.sheetapp .preview {
+  padding: 28px; display: flex; flex-direction: column; align-items: center; gap: 28px; overflow: auto; background: #fff; min-width: 0;
+}
+@media (max-width: 640px) { .sheetapp .preview { padding: 14px 0; gap: 14px; } }
+.sheetapp .page-scale { width: 210mm; max-width: 100%; }
+@media (max-width: 860px) {
+  .sheetapp .page-scale { width: 100%; overflow: hidden; }
+  .sheetapp .page-scale .sheet { transform-origin: top right; transform: scale(var(--scale, 1)); margin-bottom: calc((var(--scale, 1) - 1) * 297mm); }
+}
+
+/* ---------- A4 sheet ---------- */
+.sheetapp .sheet {
+  width: 210mm; min-height: 297mm; background: #fff; color: var(--ink); display: flex; flex-direction: column;
+  position: relative; direction: rtl; border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(20,18,19,.08);
+  font-family: var(--f-ar);
+}
+.sheetapp .sheet.capture { height: 297mm; min-height: 0; overflow: hidden; border: 0; box-shadow: none; }
+.sheetapp .sheet-head { background: var(--black); color: #fff; padding: 9mm 14mm 8mm; display: flex; align-items: center; gap: 7mm; }
+.sheetapp .sheet-head img { height: 24mm; width: 24mm; flex: 0 0 auto; }
+.sheetapp .sheet-head .t { flex: 1; min-width: 0; }
+.sheetapp .sheet-head .kicker { font-size: 10.5pt; color: #c9c1c3; font-weight: 500; margin: 0 0 2mm; }
+.sheetapp .sheet-head h1 { font-weight: 900; font-size: 24pt; line-height: 1.15; margin: 0; color: #fff; overflow-wrap: break-word; }
+.sheetapp .sheet-head .code { font-family: var(--f-num); font-weight: 600; font-size: 12pt; color: #ff4a50; text-align: left; line-height: 1.3; flex: 0 0 auto; direction: ltr; }
+.sheetapp .sheet-head .code small { display: block; color: #c9c1c3; font-weight: 500; font-size: 9pt; }
+.sheetapp .accent { height: 1.8mm; background: var(--red); }
+.sheetapp .sheet-body { padding: 7mm 14mm 6mm; flex: 1; display: flex; flex-direction: column; gap: 5mm; }
+
+.sheetapp .meta { display: grid; grid-template-columns: repeat(5, 1fr); border: .5pt solid var(--line); border-radius: 2mm; overflow: hidden; }
+.sheetapp .meta > div { padding: 2.5mm 2mm; text-align: center; border-left: .5pt solid var(--line); }
+.sheetapp .meta > div:last-child { border-left: 0; }
+.sheetapp .meta b { display: block; font-family: var(--f-num); font-weight: 700; font-size: 16pt; line-height: 1; color: var(--ink); direction: ltr; }
+.sheetapp .meta b.ar { font-family: var(--f-ar); font-size: 13pt; padding-top: 1mm; direction: rtl; }
+.sheetapp .meta span { display: block; font-size: 9.5pt; color: var(--ink-2); margin-top: 1.2mm; font-weight: 500; }
+
+.sheetapp .diagram { background: var(--board); border-radius: 2mm; min-height: 70mm; max-height: 96mm; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.sheetapp .diagram img { max-width: 100%; max-height: 96mm; object-fit: contain; display: block; }
+.sheetapp .diagram .empty { color: var(--ink-2); font-size: 11pt; text-align: center; padding: 10mm; }
+.sheetapp .diagram .empty svg { display: block; margin: 0 auto 3mm; opacity: .5; }
+
+.sheetapp .cols { display: grid; grid-template-columns: 1.25fr 1fr; gap: 6mm; }
+.sheetapp .sec { break-inside: avoid; }
+.sheetapp .sec h3 { font-size: 11.5pt; font-weight: 800; margin: 0 0 2mm; display: flex; align-items: center; gap: 2mm; color: var(--ink); }
+.sheetapp .sec h3::before { content: ""; width: 2.2mm; height: 2.2mm; background: var(--red); border-radius: .5mm; flex: 0 0 auto; }
+.sheetapp .sec h3.dark::before { background: var(--black); }
+.sheetapp .sec p { margin: 0; font-size: 11pt; line-height: 1.65; white-space: pre-line; }
+.sheetapp .sec ul { margin: 0; padding: 0 5mm 0 0; font-size: 11pt; line-height: 1.6; list-style: disc; }
+.sheetapp .sec ul li { margin-bottom: 1mm; }
+.sheetapp .sec ul li::marker { color: var(--red); }
+.sheetapp .sec.pts ul li::marker { color: var(--black); }
+.sheetapp .sec .none { color: #c4bcbe; font-size: 10pt; list-style: none; }
+.sheetapp .mt { margin-top: 4mm; }
+
+.sheetapp .plan { width: 100%; border-collapse: collapse; font-size: 11pt; }
+.sheetapp .plan th { background: var(--black); color: #fff; font-weight: 700; padding: 2.5mm 3mm; text-align: right; font-size: 10.5pt; }
+.sheetapp .plan td { padding: 2.5mm 3mm; border-bottom: .5pt solid var(--line); vertical-align: top; }
+.sheetapp .plan tbody tr:nth-child(even) td { background: var(--zebra); }
+.sheetapp .plan .n { font-family: var(--f-num); font-weight: 700; font-size: 13pt; color: var(--red); width: 8mm; }
+.sheetapp .plan .num { direction: ltr; text-align: right; }
+.sheetapp .plan tfoot td { font-weight: 800; border-bottom: 0; border-top: 1pt solid var(--black); background: #fff; }
+.sheetapp .plan .code { color: var(--ink-2); font-size: 10pt; margin-inline-start: 2mm; }
+.sheetapp .thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+.sheetapp .thumbs > div { background: var(--board); border-radius: 2mm; aspect-ratio: 4/3; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
+.sheetapp .thumbs img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.sheetapp .thumbs .lbl { position: absolute; bottom: 0; right: 0; left: 0; background: rgba(20,18,19,.85); color: #fff; font-size: 9pt; padding: 1mm 2mm; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.sheetapp .match-hero { background: var(--black); color: #fff; border-radius: 2mm; min-height: 42mm; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2mm; position: relative; overflow: hidden; }
+.sheetapp .match-hero::before { content: ""; position: absolute; inset: 4mm; border: .6pt solid rgba(255,255,255,.25); border-radius: 1.5mm; }
+.sheetapp .match-hero::after { content: ""; position: absolute; left: 50%; top: 4mm; bottom: 4mm; border-left: .6pt solid rgba(255,255,255,.25); }
+.sheetapp .match-hero .fmt { font-family: var(--f-num); font-size: 34pt; font-weight: 700; color: #ff4a50; line-height: 1; position: relative; z-index: 1; background: var(--black); padding: 0 4mm; }
+.sheetapp .match-hero .sub { font-size: 11pt; color: #c9c1c3; position: relative; z-index: 1; background: var(--black); padding: 0 3mm; }
+.sheetapp .notes { background: var(--zebra); border-radius: 2mm; padding: 3mm 4mm; }
+
+.sheetapp .sheet-foot { padding: 3.5mm 14mm; border-top: .5pt solid var(--line); display: flex; align-items: center; gap: 6mm; font-size: 9pt; color: var(--ink-2); margin-top: auto; }
+.sheetapp .sheet-foot .club { flex: 1; text-align: center; font-weight: 700; color: var(--ink); }
+.sheetapp .sheet-foot .club i { font-style: normal; color: var(--red); }
+.sheetapp .sheet-foot .en { font-weight: 600; font-size: 10pt; letter-spacing: .5px; direction: ltr; }
+.sheetapp .sheet-foot .coach { font-size: 9.5pt; }
+.sheetapp .sheet-foot .coach b { color: var(--ink); }
+
+/* ---------- dialog + toast ---------- */
+.sheetapp .dlg-back { position: fixed; inset: 0; background: rgba(20,18,19,.45); display: grid; place-items: center; z-index: 50; padding: 16px; }
+.sheetapp .dlg { background: #fff; border-radius: 10px; max-width: 380px; width: 100%; padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.25); border-top: 4px solid var(--red); }
+.sheetapp .dlg h4 { margin: 0 0 6px; font-size: 17px; }
+.sheetapp .dlg p { margin: 0 0 16px; color: var(--ink-2); line-height: 1.6; }
+.sheetapp .dlg .acts { display: flex; gap: 8px; justify-content: flex-start; }
+.sheetapp .dlg .btn { border: 1.5px solid var(--line); }
+.sheetapp .dlg .btn.red { border-color: var(--red); }
+.sheetapp .toast {
+  position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); top: calc(74px + env(safe-area-inset-top, 0px));
+  background: var(--black); color: #fff; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2); white-space: nowrap; border-inline-start: 4px solid var(--ok);
+}
+.sheetapp .toast.err { border-inline-start-color: var(--red); }
+.sheetapp .busy { position: fixed; inset: 0; background: rgba(255,255,255,.75); z-index: 55; display: grid; place-items: center; font-weight: 800; font-size: 16px; }
+.sheetapp .busy span { background: var(--black); color: #fff; padding: 12px 22px; border-radius: 8px; border-bottom: 3px solid var(--red); }
+.sheetapp #capture-host { position: fixed; left: -30000px; top: 0; width: 210mm; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .sheetapp * { transition: none !important; } }
+@media (max-width: 520px) {
+  .sheetapp .topbar h1 { font-size: 15px; }
+  .sheetapp .topbar .en { display: none; }
+  .sheetapp .tools { width: 100%; }
+  .sheetapp .tools .btn { flex: 1; justify-content: center; padding: 9px 8px; font-size: 13px; }
+}
+/* ---------- overlay inside the team site ---------- */
+.sheetapp { position: fixed; inset: 0; z-index: 100; overflow: auto; -webkit-overflow-scrolling: touch; }
+.sheetapp .topbar { top: 0; padding-top: calc(8px + env(safe-area-inset-top, 0px)); }
+html.sheet-open, html.sheet-open body { overflow: hidden; }
+.sheetapp #btn-back { padding-inline: 12px; }

@@ -186,7 +186,7 @@
     const sh = C.sheetOf(e), res = C.result(e);
     const sub = [dayName(e.date), e.time, e.place].filter(Boolean).join(" · ");
     const chip = e.status === "cancelled" ? '<span class="chip red">ملغاة</span>' : e.type === "match" ? (res ? `<span class="chip ${res === "W" ? "ok" : res === "L" ? "red" : ""} num">${e.score_for} - ${e.score_against}</span>` : '<span class="chip dark">مباراة</span>') : sh ? '<span class="chip ok">ورقة جاهزة</span>' : e.type === "training" ? '<span class="chip">بدون ورقة</span>' : `<span class="chip info">${C.typeName(e)}</span>`;
-    return `<a class="rw" href="#event-${e.id}">${datebox(e)}<span class="grow"><b>${esc(C.title(e))}</b><span>${esc(sub)}</span></span>${chip}</a>`;
+    return `<a class="rw" href="#event-${e.id}">${datebox(e)}${e.type === "match" ? C.crest(e.opponent, 34) : ""}<span class="grow"><b>${esc(C.title(e))}</b><span>${esc(sub)}</span></span>${chip}</a>`;
   };
   window.FAHU.evRow = evRow; window.FAHU.datebox = datebox;
 
@@ -398,8 +398,8 @@
     if (isM) {
       html += `<section class="card"><h3>النتيجة</h3>
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-          <b>الفحيحيل</b><input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_for" data-num value="${e.score_for ?? ""}">
-          <span class="muted">—</span><input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_against" data-num value="${e.score_against ?? ""}"><b>${esc(e.opponent || "المنافس")}</b>${C.logo(e.opponent) ? `<img src="${C.logo(e.opponent)}" alt="" style="width:44px;height:44px;object-fit:contain">` : ""}
+          <b>الفحيحيل</b>${C.crest("الفحيحيل", 44)}<input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_for" data-num value="${e.score_for ?? ""}">
+          <span class="muted">—</span><input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_against" data-num value="${e.score_against ?? ""}">${C.crest(e.opponent, 44)}<b>${esc(e.opponent || "المنافس")}</b>
           <span class="sp" style="flex:1"></span>${e.competition ? `<span class="chip">${esc(e.competition)}</span>` : ""}${e.home_away ? `<span class="chip">${esc(e.home_away)}</span>` : ""}
         </div>${e.meet_time ? `<p class="muted small" style="margin:10px 0 0">التجمع ${esc(e.meet_time)}${e.meet_place ? " · " + esc(e.meet_place) : ""}</p>` : ""}</section>`;
     }

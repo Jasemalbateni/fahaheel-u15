@@ -179,7 +179,13 @@
     logo(name) {
       if (!name) return "";
       const up = Store.setting("logos", {});
-      return up[name] || ({ "خيطان": "img/teams/khaitan.png", "القادسية": "img/teams/qadsia.png", "كاظمة": "img/teams/kazma.png" })[name.trim()] || "";
+      if (/فحيحيل/.test(name)) return "img/teams/fahaheel.png";
+      return up[name.trim()] || ({ "خيطان": "img/teams/khaitan.png", "القادسية": "img/teams/qadsia.png", "كاظمة": "img/teams/kazma.png" })[name.trim()] || "";
+    },
+    /** fixed-size crest box (same size + alignment for every team; initial letter when no crest yet) */
+    crest(name, size) {
+      const l = C.logo(name), z = size || 28;
+      return `<span class="crest" style="width:${z}px;height:${z}px;font-size:${Math.round(z * 0.46)}px">${l ? `<img src="${l}" alt="" width="${z}" height="${z}" style="width:${z}px;height:${z}px">` : esc((name || "؟").trim()[0])}</span>`;
     },
     oppBadge(name) { const l = C.logo(name); return l ? `<img class="oppimg" src="${l}" alt="">` : `<span class="opp">${esc((name || "؟").trim()[0])}</span>`; },
     result(e) { if (e.score_for == null || e.score_against == null) return null; return e.score_for > e.score_against ? "W" : e.score_for < e.score_against ? "L" : "D"; },

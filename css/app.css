@@ -150,6 +150,11 @@ body { font-family: var(--f-ar); color: var(--ink); font-size: 15px; line-height
 .vs .team img, .vs .team .opp { width: 64px; height: 64px; display: block; margin: 0 auto 6px; }
 .vs .team .opp { border-radius: 50%; background: rgba(255,255,255,.1); display: grid; place-items: center; font-size: 22px; font-weight: 900; }
 .vs .team .oppimg { object-fit: contain; }
+.crest { display: inline-grid; place-items: center; flex: 0 0 auto; border-radius: 50%; overflow: visible; font-weight: 800; color: var(--ink-3); background: #efebec; vertical-align: middle; line-height: 1; }
+.crest:has(img) { background: none; border-radius: 0; }
+.crest img { object-fit: contain; display: block; max-width: none; }
+.t td .teamcell { vertical-align: middle; }
+.teamcell { display: inline-flex; align-items: center; gap: 10px; }
 .vs .mid { text-align: center; }
 .vs .mid small { display: block; color: #b9b1b3; font-size: 12.5px; }
 

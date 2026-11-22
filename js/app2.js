@@ -65,8 +65,33 @@
       `<div class="tiles"><div class="tile dark"><b>${played.length}</b><span>مباراة ملعوبة</span></div><div class="tile ok"><b>${n("W")}</b><span>فوز</span></div><div class="tile"><b>${n("D")}</b><span>تعادل</span></div><div class="tile red"><b>${n("L")}</b><span>خسارة</span></div><div class="tile"><b>${gf}<small> : ${ga}</small></b><span>لنا : علينا</span></div>
         <div class="tile"><div class="form5" style="height:38px;align-items:center">${played.slice(-5).map((m) => `<i class="${C.result(m)}">${{ W: "ف", D: "ت", L: "خ" }[C.result(m)]}</i>`).join("") || '<span class="muted">—</span>'}</div><span>آخر 5 مباريات</span></div></div>
       ${pending.length ? `<div class="banner info mt">${pending.length} مباراة سابقة بدون نتيجة — افتحها وأدخل النتيجة.</div>` : ""}
+      ${standingsCard()}
       <div class="grid g2 mt"><section class="card"><h3>القادمة</h3><div class="rows">${up.map(evRow).join("") || '<div class="empty small">ما في مباريات قادمة</div>'}</div></section>
       <section class="card"><h3>النتائج</h3><div class="rows">${ms.filter((m) => !up.includes(m)).reverse().map(evRow).join("") || '<div class="empty small">ما في نتائج بعد</div>'}</div></section></div>`;
+  };
+
+  /* ---------- ترتيب الدوري (يدخله الطاقم) ---------- */
+  const isUs = (n) => /فحيحيل/.test(n || "");
+  function standingsCard() {
+    const st = Store.setting("standings", null), rows = (st && st.rows) || [];
+    return `<section class="card mt"><h3>ترتيب الدوري <span class="sp"></span>${st && st.date ? `<small>آخر تحديث ${fmtFull(st.date)}</small>` : ""}<button type="button" class="b sm" data-act="stEdit">${IC.edit} ${rows.length ? "تحديث" : "إدخال الترتيب"}</button></h3>
+      ${rows.length ? `<div class="tw"><table class="t"><thead><tr><th class="n">#</th><th>الفريق</th><th class="n">لعب</th><th class="n">الفرق</th><th class="n">نقاط</th></tr></thead><tbody>${rows.map((r, i) => `<tr style="${isUs(r.team) ? "font-weight:800;box-shadow:inset 4px 0 0 var(--red)" : ""}"><td class="n">${i + 1}</td><td class="name" style="${isUs(r.team) ? "color:var(--red)" : ""}">${C.logo(r.team) ? `<img src="${C.logo(r.team)}" alt="" style="width:22px;height:22px;object-fit:contain;vertical-align:-5px;margin-inline-end:6px">` : ""}${esc(r.team)}</td><td class="n">${r.played ?? ""}</td><td class="n" style="color:${r.gd < 0 ? "var(--red)" : r.gd > 0 ? "var(--ok)" : "inherit"}">${r.gd > 0 ? "+" : ""}${r.gd ?? ""}</td><td class="n" style="font-weight:800">${r.points ?? ""}</td></tr>`).join("")}</tbody></table></div>` : '<div class="empty small">ما انحط جدول الترتيب بعد</div>'}</section>`;
+  }
+  A.stEdit = () => {
+    const st = Store.setting("standings", { rows: [] });
+    const text = (st.rows || []).map((r) => [r.team, r.played, r.gd, r.points].join("، ")).join("\n");
+    modal({ title: "ترتيب الدوري", wide: true,
+      body: `<p class="muted small" style="margin-top:0">سطر لكل فريق بالترتيب: <b>الفريق، لعب، فارق الأهداف، النقاط</b> — مثال: الكويت، 6، 35، 16</p><div class="f"><textarea name="rows" style="min-height:330px;line-height:1.9" dir="rtl">${esc(text)}</textarea></div>${fld("تاريخ التحديث", "date", st.date || today(), 'type="date" dir="ltr"')}`,
+      foot: `<button type="button" class="b red" data-save>حفظ</button><button type="button" class="b" data-close>إلغاء</button>`,
+      onMount(w, api) { $("[data-save]", w).addEventListener("click", () => {
+        const f = formData(w), rows = [];
+        for (const line of f.rows.split("\n").map((x) => x.trim()).filter(Boolean)) {
+          const p = line.split(/[،,\t]+/).map((x) => x.trim()), num = (v) => { const n = Number(String(v || "").replace(/[+\u200e\u200f]/g, "").replace(/^(\d+)-$/, "-$1")); return isNaN(n) ? null : n; };
+          if (!p[0] || p.length < 4 || [p[1], p[2], p[3]].some((v) => num(v) == null)) return toast("تحقق من السطر: " + line, true);
+          rows.push({ team: p[0], played: num(p[1]), gd: num(p[2]), points: num(p[3]) });
+        }
+        Store.setSetting("standings", { date: f.date || today(), rows }); toast("تم حفظ الترتيب"); api.close();
+      }); } });
   };
 
   /* =====================================================================

@@ -175,6 +175,13 @@
       return null;
     },
     load(e) { const r = C.rpe(e); return r ? Math.round(C.dur(e) * r.v) : null; },
+    /** opponent crest: uploaded by the staff (settings) or shipped with the site */
+    logo(name) {
+      if (!name) return "";
+      const up = Store.setting("logos", {});
+      return up[name] || ({ "خيطان": "img/teams/khaitan.png" })[name.trim()] || "";
+    },
+    oppBadge(name) { const l = C.logo(name); return l ? `<img class="oppimg" src="${l}" alt="">` : `<span class="opp">${esc((name || "؟").trim()[0])}</span>`; },
     result(e) { if (e.score_for == null || e.score_against == null) return null; return e.score_for > e.score_against ? "W" : e.score_for < e.score_against ? "L" : "D"; },
     /** full per-player season numbers */
     playerStats(from, to) {

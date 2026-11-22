@@ -227,7 +227,7 @@
       match = `<section class="hero match"><div class="kick">NEXT MATCH · ${esc(nextM.competition || "")}</div>
         <div class="vs"><div class="team"><img src="${LOGO}" alt="">الفحيحيل</div>
           <div class="mid"><div class="big">${n === 0 ? "اليوم" : n}</div><small>${n === 0 ? "يوم المباراة" : n === 1 ? "يوم على المباراة" : "أيام على المباراة"}</small></div>
-          <div class="team"><span class="opp">${esc((nextM.opponent || "؟")[0])}</span>${esc(nextM.opponent || "—")}</div></div>
+          <div class="team">${C.oppBadge(nextM.opponent)}${esc(nextM.opponent || "—")}</div></div>
         <div class="meta" style="justify-content:center;margin-top:12px"><span><b>${fmtLong(nextM.date)}</b></span>${nextM.time ? `<span class="num">${esc(nextM.time)}</span>` : ""}${nextM.place ? `<span>${esc(nextM.place)}</span>` : ""}</div>
         ${nextM.meet_time ? `<div class="meta" style="justify-content:center"><span>التجمع <b class="num">${esc(nextM.meet_time)}</b>${nextM.meet_place ? " · " + esc(nextM.meet_place) : ""}</span></div>` : ""}
         <div class="acts" style="justify-content:center"><a class="b ghost" href="#event-${nextM.id}">تفاصيل المباراة</a></div></section>`;
@@ -300,6 +300,7 @@
       <div data-for="training"><div class="fr">${fld("الهدف الفني / التكتيكي", "goal_tech", e.goal_tech)}${selF("الهدف البدني", "goal_phys", e.goal_phys || "", PHYS.map((p) => [p, p || "—"]))}</div></div>
       <div data-for="match">
         <div class="fr">${fld("المنافس", "opponent", e.opponent)}${fld("البطولة", "competition", e.competition)}</div>
+        <div class="f"><label>شعار المنافس (اختياري)</label><div style="display:flex;align-items:center;gap:12px"><span id="lgPrev" style="width:44px;height:44px;display:grid;place-items:center">${C.logo(e.opponent) ? `<img src="${C.logo(e.opponent)}" alt="" style="width:44px;height:44px;object-fit:contain">` : ""}</span><input type="file" accept="image/*" id="lgIn" style="flex:1;min-width:0"></div><div class="hint">ينحفظ باسم المنافس ويظهر في كل مبارياته.</div></div>
         <div class="fr3">${selF("الملعب", "home_away", e.home_away, ["على أرضنا", "خارج أرضنا", "محايد"])}${fld("وقت التجمع", "meet_time", e.meet_time, 'type="time" dir="ltr"')}${fld("مكان التجمع", "meet_place", e.meet_place)}</div>
       </div>
       ${isNew ? `<div data-for="training" class="f"><label>تكرار أسبوعي (اختياري)</label>
@@ -312,10 +313,19 @@
       onMount(w, api) {
         const sync = () => { const t = $("[name=type]", w).value; $$("[data-for]", w).forEach((x) => (x.style.display = x.dataset.for.split(" ").includes(t) ? "" : "none")); };
         $("[name=type]", w).addEventListener("change", sync); sync();
+        let newLogo = "";
+        $("#lgIn", w).addEventListener("change", (x) => {
+          const f = x.target.files[0]; if (!f) return;
+          const im = new Image(), url = URL.createObjectURL(f);
+          im.onload = () => { const sc = Math.min(1, 200 / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); newLogo = c.toDataURL("image/png"); $("#lgPrev", w).innerHTML = `<img src="${newLogo}" alt="" style="width:44px;height:44px;object-fit:contain">`; URL.revokeObjectURL(url); };
+          im.onerror = () => toast("تعذّر قراءة الصورة", true);
+          im.src = url;
+        });
         $("[data-save]", w).addEventListener("click", () => {
           const f = formData(w), until = f.until; delete f.until;
           if (!f.date) return toast("حدد التاريخ", true);
           if (f.type === "match" && !f.opponent) return toast("اكتب اسم المنافس", true);
+          if (f.type === "match" && newLogo) Store.setSetting("logos", { ...Store.setting("logos", {}), [f.opponent.trim()]: newLogo });
           const base = { ...e, ...f };
           const reps = $$("[data-rep]:checked", w).map((c) => +c.dataset.rep);
           if (isNew && f.type === "training" && reps.length && until) {
@@ -377,7 +387,7 @@
       html += `<section class="card"><h3>النتيجة</h3>
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
           <b>الفحيحيل</b><input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_for" data-num value="${e.score_for ?? ""}">
-          <span class="muted">—</span><input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_against" data-num value="${e.score_against ?? ""}"><b>${esc(e.opponent || "المنافس")}</b>
+          <span class="muted">—</span><input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_against" data-num value="${e.score_against ?? ""}"><b>${esc(e.opponent || "المنافس")}</b>${C.logo(e.opponent) ? `<img src="${C.logo(e.opponent)}" alt="" style="width:44px;height:44px;object-fit:contain">` : ""}
           <span class="sp" style="flex:1"></span>${e.competition ? `<span class="chip">${esc(e.competition)}</span>` : ""}${e.home_away ? `<span class="chip">${esc(e.home_away)}</span>` : ""}
         </div>${e.meet_time ? `<p class="muted small" style="margin:10px 0 0">التجمع ${esc(e.meet_time)}${e.meet_place ? " · " + esc(e.meet_place) : ""}</p>` : ""}</section>`;
     }

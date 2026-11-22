@@ -179,7 +179,7 @@
     logo(name) {
       if (!name) return "";
       const up = Store.setting("logos", {});
-      return up[name] || ({ "خيطان": "img/teams/khaitan.png" })[name.trim()] || "";
+      return up[name] || ({ "خيطان": "img/teams/khaitan.png", "القادسية": "img/teams/qadsia.png", "كاظمة": "img/teams/kazma.png" })[name.trim()] || "";
     },
     oppBadge(name) { const l = C.logo(name); return l ? `<img class="oppimg" src="${l}" alt="">` : `<span class="opp">${esc((name || "؟").trim()[0])}</span>`; },
     result(e) { if (e.score_for == null || e.score_against == null) return null; return e.score_for > e.score_against ? "W" : e.score_for < e.score_against ? "L" : "D"; },

@@ -248,6 +248,8 @@ button.rw { border: 0; border-bottom: 1px solid var(--line); background: none; w
 .pc .flag { position: absolute; top: 6px; right: 8px; font-size: 10.5px; font-weight: 800; color: var(--warn); background: var(--warn-soft); border-radius: 999px; padding: 1px 7px; }
 .pc .more { position: absolute; top: 2px; left: 2px; width: 34px; height: 34px; border: 0; background: none; color: var(--ink-3); border-radius: 10px; display: grid; place-items: center; }
 .pc .more svg { width: 18px; height: 18px; }
+.pc.sq { min-height: 74px; padding: 10px 8px 8px; } .pc.sq .flag { position: static; order: 3; } .agrid.sq { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+@media (max-width: 520px) { .pc.sq { min-height: 70px; } .agrid.sq { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .pc.present { background: var(--ok); border-color: var(--ok); color: #fff; } .pc.present .st, .pc.present .more { color: #d8f1e2; }
 .pc.absent { background: var(--red); border-color: var(--red); color: #fff; } .pc.absent .st, .pc.absent .more { color: #ffd9da; }
 .pc.late { background: var(--warn-soft); border-color: var(--warn); } .pc.late .st { color: var(--warn); }

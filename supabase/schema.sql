@@ -164,3 +164,6 @@ alter table public.drawings enable row level security;
 revoke all on public.drawings from anon;
 grant select, insert, update, delete on public.drawings to authenticated;
 create policy staff_all on public.drawings for all to authenticated using ((select private.is_staff())) with check ((select private.is_staff()));
+
+-- قائمة المباراة: معرّفات اللاعبين المستدعين (بدون حد)
+alter table public.events add column if not exists squad jsonb not null default '[]'::jsonb;

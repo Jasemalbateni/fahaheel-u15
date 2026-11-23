@@ -404,6 +404,18 @@
           <span class="sp" style="flex:1"></span>${e.competition ? `<span class="chip">${esc(e.competition)}</span>` : ""}${e.home_away ? `<span class="chip">${esc(e.home_away)}</span>` : ""}
         </div>${e.meet_time ? `<p class="muted small" style="margin:10px 0 0">التجمع ${esc(e.meet_time)}${e.meet_place ? " · " + esc(e.meet_place) : ""}</p>` : ""}</section>`;
     }
+    if (isM) {
+      const sq = new Set(Array.isArray(e.squad) ? e.squad : []);
+      const plist = playersSorted(true).filter((p) => p.active !== false || sq.has(p.id));
+      const n = plist.filter((p) => sq.has(p.id)).length;
+      html += `<section class="card mt"><h3>قائمة المباراة <span class="sp"></span><small><b class="num">${n}</b> لاعب</small></h3>
+        <p class="muted small" style="margin:0 0 10px">اضغط على اللاعب عشان تضيفه للقائمة، واضغط مرة ثانية عشان تشيله.</p>
+        <div class="toolbar no-print"><button type="button" class="b sm red" data-act="sqShare" data-id="${id}">${IC.down} صورة القائمة</button><button type="button" class="b sm" data-act="sqAll" data-id="${id}">${IC.check} اختيار الكل</button><button type="button" class="b sm" data-act="sqClear" data-id="${id}">مسح القائمة</button></div>
+        <div class="agrid sq">${plist.map((p) => { const on = sq.has(p.id);
+          return `<div class="pc sq ${on ? "present" : ""}" role="button" tabindex="0" data-act="sqTap" data-e="${id}" data-p="${p.id}" aria-pressed="${on}" aria-label="${esc(p.name)} — ${on ? "في القائمة" : "خارج القائمة"}">
+            ${p.status && p.status !== "متاح" ? `<span class="flag">${esc(p.status)}</span>` : ""}<span class="nm">${esc(p.name)}</span><span class="st">${on ? "في القائمة ✓" : "اضغط للإضافة"}</span></div>`; }).join("")}</div>
+        ${plist.length ? "" : '<div class="empty small">ما في لاعبين — أضفهم من قسم «اللاعبون»</div>'}</section>`;
+    }
     html += `<div class="grid g2 mt">`;
     if (isT || isM) {
       html += `<section class="card"><h3>الحضور <span class="sp"></span><small>${att.length ? att.length + " مسجل" : "لم يُسجل بعد"}</small></h3>
@@ -449,6 +461,85 @@
     if (k === "started") { s.started = el.checked; if (el.checked && !s.minutes) s.minutes = C.dur(Store.get("events", el.dataset.e)) || null; }
     else { const v = el.value === "" ? 0 : Number(el.value); if (isNaN(v) || v < 0) return toast("أدخل رقم صحيح", true); s[k] = k === "minutes" && el.value === "" ? null : v; }
     Store.put("match_stats", s);
+  };
+
+  /* ---------- قائمة المباراة: اللاعبون المستدعون (بدون حد، وبدون أساسي/احتياط) ---------- */
+  const squadOf = (e) => (Array.isArray(e.squad) ? e.squad.filter((pid) => Store.get("players", pid)) : []);
+  const setSquad = (id, list) => { const e = Store.get("events", id); if (e) Store.put("events", { ...e, squad: list }); };
+  A.sqTap = (el) => {
+    const e = Store.get("events", el.dataset.e); if (!e) return;
+    const cur = squadOf(e), p = el.dataset.p;
+    setSquad(e.id, cur.includes(p) ? cur.filter((x) => x !== p) : cur.concat(p));
+    if (navigator.vibrate) try { navigator.vibrate(12); } catch {}
+  };
+  A.sqAll = (el) => setSquad(el.dataset.id, playersSorted().map((p) => p.id));
+  A.sqClear = async (el) => {
+    const e = Store.get("events", el.dataset.id); if (!e || !squadOf(e).length) return;
+    if (!(await ask("مسح قائمة المباراة؟", `ينشالون ${squadOf(e).length} لاعب من القائمة.`, "مسح"))) return;
+    setSquad(e.id, []);
+  };
+  const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
+  /** صورة القائمة (1080 عرض) للإرسال بالواتساب */
+  async function squadImage(e) {
+    const sq = new Set(squadOf(e));
+    const names = playersSorted(true).filter((p) => sq.has(p.id)).map((p) => p.name);
+    const AR = '"Tajawal", "Segoe UI", Tahoma, sans-serif', NUM = '"Barlow Condensed", "Tajawal", sans-serif';
+    try { await Promise.all([document.fonts.load("800 60px Tajawal"), document.fonts.load("700 40px Tajawal"), document.fonts.load('700 40px "Barlow Condensed"')]); } catch {}
+    const [home, away] = await Promise.all([loadImg(C.logo("الفحيحيل")), loadImg(C.logo(e.opponent))]);
+    const W = 1080, PAD = 60, HEAD = 540, ROW = 84, GAP = 24, FOOT = 110;
+    const cols = names.length > 9 ? 2 : 1, rows = Math.ceil(names.length / cols);
+    const H = HEAD + 50 + rows * ROW + 40 + FOOT;
+    const c = document.createElement("canvas"); c.width = W; c.height = H;
+    const x = c.getContext("2d");
+    x.fillStyle = "#f6f3f3"; x.fillRect(0, 0, W, H);
+    x.fillStyle = "#141213"; x.fillRect(0, 0, W, HEAD);
+    x.fillStyle = "#d71920"; x.fillRect(0, 0, W, 14); x.fillRect(0, HEAD - 8, W, 8);
+    x.direction = "rtl"; x.textBaseline = "alphabetic"; x.textAlign = "center";
+    x.fillStyle = "#d71920"; x.font = "700 30px " + NUM; x.fillText("MATCH SQUAD", W / 2, 78);
+    x.fillStyle = "#fff"; x.font = "800 66px " + AR; x.fillText("قائمة المباراة", W / 2, 150);
+    const crest = (im, cx, name) => {
+      const z = 150, cy = 262;
+      if (im) { const k = Math.min(z / im.width, z / im.height), w = im.width * k, h = im.height * k; x.drawImage(im, cx - w / 2, cy - h / 2, w, h); }
+      else { x.fillStyle = "#2a2627"; x.beginPath(); x.arc(cx, cy, z / 2, 0, Math.PI * 2); x.fill(); x.fillStyle = "#fff"; x.font = "800 70px " + AR; x.fillText((name || "؟").trim()[0], cx, cy + 24); }
+      x.fillStyle = "#fff"; x.font = "800 36px " + AR; x.fillText(name || "المنافس", cx, cy + z / 2 + 52, 400);
+    };
+    crest(home, W - 250, "الفحيحيل"); crest(away, 250, e.opponent);
+    x.fillStyle = "#d71920"; x.font = "700 64px " + NUM; x.fillText("VS", W / 2, 284);
+    const info = [fmtLong(e.date), e.time || "", e.place || ""].filter(Boolean).join("  ·  ");
+    x.fillStyle = "#cfc7c9"; x.font = "700 30px " + AR; x.fillText(info, W / 2, HEAD - 62, W - PAD * 2);
+    const meet = e.meet_time ? "التجمع " + e.meet_time + (e.meet_place ? " · " + e.meet_place : "") : e.competition || "";
+    if (meet) { x.font = "700 26px " + AR; x.fillStyle = "#9c9396"; x.fillText(meet, W / 2, HEAD - 24, W - PAD * 2); }
+    const cw = (W - PAD * 2 - GAP * (cols - 1)) / cols, top = HEAD + 50;
+    names.forEach((nm, i) => {
+      const col = Math.floor(i / rows), row = i % rows;
+      const right = W - PAD - col * (cw + GAP), left = right - cw, y = top + row * ROW;
+      x.fillStyle = "#fff"; x.beginPath(); x.roundRect ? x.roundRect(left, y, cw, ROW - 14, 16) : x.rect(left, y, cw, ROW - 14); x.fill();
+      x.fillStyle = "#d71920"; x.beginPath(); x.roundRect ? x.roundRect(right - 64, y, 64, ROW - 14, [0, 16, 16, 0]) : x.rect(right - 64, y, 64, ROW - 14); x.fill();
+      x.textAlign = "center"; x.fillStyle = "#fff"; x.font = "700 36px " + NUM; x.fillText(String(i + 1), right - 32, y + 48);
+      x.textAlign = "right"; x.fillStyle = "#141213"; x.font = "800 " + (cols > 1 ? 31 : 36) + "px " + AR; x.fillText(nm, right - 84, y + 47, cw - 104);
+    });
+    x.textAlign = "center"; x.fillStyle = "#6f6669"; x.font = "700 28px " + AR;
+    x.fillText("نادي الفحيحيل · فريق تحت 15 · " + names.length + " لاعب", W / 2, H - 46);
+    return await new Promise((res) => c.toBlob((b) => res(b), "image/png"));
+  }
+  A.sqShare = async (el) => {
+    const e = Store.get("events", el.dataset.id); if (!e) return;
+    if (!squadOf(e).length) return toast("القائمة فاضية — اختر اللاعبين أولاً", true);
+    const blob = await squadImage(e); if (!blob) return toast("تعذّر تجهيز الصورة", true);
+    const name = ("قائمة المباراة - " + (e.opponent || "") + " - " + e.date).replace(/[\\/:*?"<>|]+/g, " ").trim() + ".png";
+    const file = (() => { try { return new File([blob], name, { type: "image/png" }); } catch { return null; } })();
+    const canShare = !!(file && navigator.canShare && navigator.canShare({ files: [file] }));
+    const url = URL.createObjectURL(blob);
+    modal({
+      title: "صورة قائمة المباراة", wide: true, onClose: () => URL.revokeObjectURL(url),
+      body: `<img src="${url}" alt="قائمة المباراة" style="display:block;width:100%;max-width:440px;margin:0 auto;border-radius:12px;border:1px solid var(--line)">`,
+      foot: `${canShare ? '<button type="button" class="b red" data-share>مشاركة (واتساب)</button>' : ""}<button type="button" class="b ${canShare ? "" : "red"}" data-dl>تنزيل الصورة</button><button type="button" class="b" data-close>إغلاق</button>`,
+      onMount(w) {
+        const sh = $("[data-share]", w);
+        if (sh) sh.addEventListener("click", async () => { try { await navigator.share({ files: [file], title: "قائمة المباراة" }); } catch (err) { if (!err || err.name !== "AbortError") U.saveFile(name, blob, "image/png"); } });
+        $("[data-dl]", w).addEventListener("click", async () => { if (await U.saveFile(name, blob, "image/png")) toast("تم تنزيل الصورة"); });
+      }
+    });
   };
 
   /* =====================================================================

@@ -158,6 +158,14 @@
     held(e) { return e.status !== "cancelled"; },
     countable(e) { return (e.type === "training" || e.type === "match") && C.held(e); },
     title(e) { return e.type === "match" ? "مباراة ضد " + (e.opponent || "—") : e.title || { training: "حصة تدريبية", meeting: "اجتماع", rest: "راحة" }[e.type] || "نشاط"; },
+    /** وقت التجمع: المدخل يدوياً، وإلا قبل المباراة بـ75 دقيقة دائماً */
+    meet(e) {
+      if (!e || e.type !== "match") return (e && e.meet_time) || "";
+      if (e.meet_time) return e.meet_time;
+      const m = /^(\d{1,2}):(\d{2})/.exec(e.time || ""); if (!m) return "";
+      const t = (((+m[1]) * 60 + (+m[2]) - 75) % 1440 + 1440) % 1440;
+      return String(Math.floor(t / 60)).padStart(2, "0") + ":" + String(t % 60).padStart(2, "0");
+    },
     typeName(e) { return { training: "تمرين", match: "مباراة", meeting: "اجتماع", rest: "راحة" }[e.type] || ""; },
     attOf(eventId) { return D().attendance.filter((a) => a.event_id === eventId); },
     attMaps() { const m = new Map(); D().attendance.forEach((a) => { if (!m.has(a.event_id)) m.set(a.event_id, new Map()); m.get(a.event_id).set(a.player_id, a); }); return m; },

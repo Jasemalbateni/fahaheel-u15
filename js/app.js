@@ -230,7 +230,7 @@
           <div class="mid"><div class="big">${n === 0 ? "اليوم" : n}</div><small>${n === 0 ? "يوم المباراة" : n === 1 ? "يوم على المباراة" : "أيام على المباراة"}</small></div>
           <div class="team">${C.oppBadge(nextM.opponent)}${esc(nextM.opponent || "—")}</div></div>
         <div class="meta" style="justify-content:center;margin-top:12px"><span><b>${fmtLong(nextM.date)}</b></span>${nextM.time ? `<span class="num">${esc(nextM.time)}</span>` : ""}${nextM.place ? `<span>${esc(nextM.place)}</span>` : ""}</div>
-        ${nextM.meet_time ? `<div class="meta" style="justify-content:center"><span>التجمع <b class="num">${esc(nextM.meet_time)}</b>${nextM.meet_place ? " · " + esc(nextM.meet_place) : ""}</span></div>` : ""}
+        ${C.meet(nextM) ? `<div class="meta" style="justify-content:center"><span>التجمع <b class="num">${esc(C.meet(nextM))}</b>${nextM.meet_place ? " · " + esc(nextM.meet_place) : ""}</span></div>` : ""}
         <div class="acts" style="justify-content:center"><a class="b ghost" href="#event-${nextM.id}">تفاصيل المباراة</a></div></section>`;
     }
     // alerts
@@ -314,7 +314,7 @@
       <div data-for="match">
         <div class="fr">${fld("المنافس", "opponent", e.opponent)}${fld("البطولة", "competition", e.competition)}</div>
         <div class="f"><label>شعار المنافس (اختياري)</label><div style="display:flex;align-items:center;gap:12px"><span id="lgPrev" style="width:44px;height:44px;display:grid;place-items:center">${C.logo(e.opponent) ? `<img src="${C.logo(e.opponent)}" alt="" style="width:44px;height:44px;object-fit:contain">` : ""}</span><input type="file" accept="image/*" id="lgIn" style="flex:1;min-width:0"></div><div class="hint">ينحفظ باسم المنافس ويظهر في كل مبارياته.</div></div>
-        <div class="fr3">${selF("الملعب", "home_away", e.home_away, ["على أرضنا", "خارج أرضنا", "محايد"])}${fld("وقت التجمع", "meet_time", e.meet_time, 'type="time" dir="ltr"')}${fld("مكان التجمع", "meet_place", e.meet_place)}</div>
+        <div class="fr3">${selF("الملعب", "home_away", e.home_away, ["على أرضنا", "خارج أرضنا", "محايد"])}${fld("وقت التجمع (فاضي = قبلها بـ75 د)", "meet_time", e.meet_time, 'type="time" dir="ltr"')}${fld("مكان التجمع", "meet_place", e.meet_place)}</div>
       </div>
       ${isNew ? `<div data-for="training" class="f"><label>تكرار أسبوعي (اختياري)</label>
         <div style="display:flex;gap:6px;flex-wrap:wrap">${U.DAYS.map((d, i) => `<label class="chip" style="cursor:pointer;padding:6px 10px"><input type="checkbox" data-rep="${i}" style="margin:0 0 0 4px;accent-color:#d71920">${d}</label>`).join("")}</div>
@@ -402,7 +402,7 @@
           <b>الفحيحيل</b>${C.crest("الفحيحيل", 44)}<input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_for" data-num value="${e.score_for ?? ""}">
           <span class="muted">—</span><input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_against" data-num value="${e.score_against ?? ""}">${C.crest(e.opponent, 44)}<b>${esc(e.opponent || "المنافس")}</b>
           <span class="sp" style="flex:1"></span>${e.competition ? `<span class="chip">${esc(e.competition)}</span>` : ""}${e.home_away ? `<span class="chip">${esc(e.home_away)}</span>` : ""}
-        </div>${e.meet_time ? `<p class="muted small" style="margin:10px 0 0">التجمع ${esc(e.meet_time)}${e.meet_place ? " · " + esc(e.meet_place) : ""}</p>` : ""}</section>`;
+        </div>${C.meet(e) ? `<p class="muted small" style="margin:10px 0 0">التجمع <span class="num">${esc(C.meet(e))}</span>${e.meet_place ? " · " + esc(e.meet_place) : ""}</p>` : ""}</section>`;
     }
     if (isM) {
       const sq = new Set(Array.isArray(e.squad) ? e.squad : []);
@@ -507,7 +507,7 @@
     x.fillStyle = "#d71920"; x.font = "700 64px " + NUM; x.fillText("VS", W / 2, 284);
     const info = [fmtLong(e.date), e.time || "", e.place || ""].filter(Boolean).join("  ·  ");
     x.fillStyle = "#cfc7c9"; x.font = "700 30px " + AR; x.fillText(info, W / 2, HEAD - 62, W - PAD * 2);
-    const meet = e.meet_time ? "التجمع " + e.meet_time + (e.meet_place ? " · " + e.meet_place : "") : e.competition || "";
+    const meet = C.meet(e) ? "التجمع " + C.meet(e) + (e.meet_place ? " · " + e.meet_place : "") : e.competition || "";
     if (meet) { x.font = "700 26px " + AR; x.fillStyle = "#9c9396"; x.fillText(meet, W / 2, HEAD - 24, W - PAD * 2); }
     const cw = (W - PAD * 2 - GAP * (cols - 1)) / cols, top = HEAD + 50;
     names.forEach((nm, i) => {

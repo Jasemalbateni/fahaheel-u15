@@ -232,6 +232,7 @@
           <div class="team">${C.oppBadge(nextM.opponent)}${esc(nextM.opponent || "—")}</div></div>
         <div class="meta" style="justify-content:center;margin-top:12px"><span><b>${fmtLong(nextM.date)}</b></span>${nextM.time ? `<span class="num">${esc(nextM.time)}</span>` : ""}${nextM.place ? `<span>${esc(nextM.place)}</span>` : ""}</div>
         ${C.meet(nextM) ? `<div class="meta" style="justify-content:center"><span>التجمع <b class="num">${esc(C.meet(nextM))}</b>${nextM.meet_place ? " · " + esc(nextM.meet_place) : ""}</span></div>` : ""}
+        ${nextM.notes_before ? `<div class="nb" style="margin:10px 0 0;padding:10px 12px;border-radius:10px;background:rgba(215,25,32,.08);border:1px solid rgba(215,25,32,.25);white-space:pre-line;font-size:14px;line-height:1.7;text-align:start">${esc(nextM.notes_before)}</div>` : ""}
         <div class="acts" style="justify-content:center"><a class="b ghost" href="#event-${nextM.id}">تفاصيل المباراة</a></div></section>`;
     }
     // alerts
@@ -316,6 +317,7 @@
         <div class="fr">${fld("المنافس", "opponent", e.opponent)}${fld("البطولة", "competition", e.competition)}</div>
         <div class="f"><label>شعار المنافس (اختياري)</label><div style="display:flex;align-items:center;gap:12px"><span id="lgPrev" style="width:44px;height:44px;display:grid;place-items:center">${C.logo(e.opponent) ? `<img src="${C.logo(e.opponent)}" alt="" style="width:44px;height:44px;object-fit:contain">` : ""}</span><input type="file" accept="image/*" id="lgIn" style="flex:1;min-width:0"></div><div class="hint">ينحفظ باسم المنافس ويظهر في كل مبارياته.</div></div>
         <div class="fr3">${selF("الملعب", "home_away", e.home_away, ["على أرضنا", "خارج أرضنا", "محايد"])}${fld("وقت التجمع (فاضي = قبلها بـ75 د)", "meet_time", e.meet_time, 'type="time" dir="ltr"')}${fld("مكان التجمع", "meet_place", e.meet_place)}</div>
+        ${areaF("تعليمات قبل المباراة (اللبس، وقت الاجتماع…)", "notes_before", e.notes_before, "مثال: اللبس الأحمر كامل · بداية الاجتماع 4:25")}
       </div>
       ${isNew ? `<div data-for="training" class="f"><label>تكرار أسبوعي (اختياري)</label>
         <div style="display:flex;gap:6px;flex-wrap:wrap">${U.DAYS.map((d, i) => `<label class="chip" style="cursor:pointer;padding:6px 10px"><input type="checkbox" data-rep="${i}" style="margin:0 0 0 4px;accent-color:#d71920">${d}</label>`).join("")}</div>
@@ -403,7 +405,7 @@
           <b>الفحيحيل</b>${C.crest("الفحيحيل", 44)}<input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_for" data-num value="${e.score_for ?? ""}">
           <span class="muted">—</span><input class="search num" style="flex:0 0 74px;min-width:0;text-align:center;font-size:26px;font-weight:700" inputmode="numeric" data-chg="evField" data-id="${id}" data-k="score_against" data-num value="${e.score_against ?? ""}">${C.crest(e.opponent, 44)}<b>${esc(e.opponent || "المنافس")}</b>
           <span class="sp" style="flex:1"></span>${e.competition ? `<span class="chip">${esc(e.competition)}</span>` : ""}${e.home_away ? `<span class="chip">${esc(e.home_away)}</span>` : ""}
-        </div>${C.meet(e) ? `<p class="muted small" style="margin:10px 0 0">التجمع <span class="num">${esc(C.meet(e))}</span>${e.meet_place ? " · " + esc(e.meet_place) : ""}</p>` : ""}</section>`;
+        </div>${C.meet(e) ? `<p class="muted small" style="margin:10px 0 0">التجمع <span class="num">${esc(C.meet(e))}</span>${e.meet_place ? " · " + esc(e.meet_place) : ""}</p>` : ""}${e.notes_before ? `<div class="nb" style="margin:10px 0 0;padding:10px 12px;border-radius:10px;background:rgba(215,25,32,.08);border:1px solid rgba(215,25,32,.25);white-space:pre-line;font-size:14px;line-height:1.7;text-align:start">${esc(e.notes_before)}</div>` : ""}</section>`;
     }
     if (isM) {
       const sq = new Set(Array.isArray(e.squad) ? e.squad : []);
@@ -489,7 +491,8 @@
     const [home, away] = await Promise.all([loadImg(C.logo("الفحيحيل")), loadImg(C.logo(e.opponent))]);
     const W = 1080, PAD = 60, HEAD = 540, ROW = 84, GAP = 24, FOOT = 110;
     const cols = names.length > 9 ? 2 : 1, rows = Math.ceil(names.length / cols);
-    const H = HEAD + 50 + rows * ROW + 40 + FOOT;
+    const nb = String(e.notes_before || "").split("\n").map((t) => t.trim()).filter(Boolean), NBH = nb.length ? nb.length * 48 + 56 : 0;
+    const H = HEAD + 50 + rows * ROW + 40 + NBH + FOOT;
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
     x.fillStyle = "#f6f3f3"; x.fillRect(0, 0, W, H);
@@ -519,6 +522,12 @@
       x.textAlign = "center"; x.fillStyle = "#fff"; x.font = "700 36px " + NUM; x.fillText(String(i + 1), right - 32, y + 48);
       x.textAlign = "right"; x.fillStyle = "#141213"; x.font = "800 " + (cols > 1 ? 31 : 36) + "px " + AR; x.fillText(nm, right - 84, y + 47, cw - 104);
     });
+    if (nb.length) {
+      const y0 = top + rows * ROW + 16;
+      x.fillStyle = "#fbe9ea"; x.beginPath(); x.roundRect ? x.roundRect(PAD, y0, W - PAD * 2, NBH - 20, 16) : x.rect(PAD, y0, W - PAD * 2, NBH - 20); x.fill();
+      x.textAlign = "center"; x.fillStyle = "#141213"; x.font = "700 30px " + AR;
+      nb.forEach((t, i) => x.fillText(t, W / 2, y0 + 50 + i * 48, W - PAD * 2 - 40));
+    }
     x.textAlign = "center"; x.fillStyle = "#6f6669"; x.font = "700 28px " + AR;
     x.fillText("نادي الفحيحيل · فريق تحت 15 · " + names.length + " لاعب", W / 2, H - 46);
     return await new Promise((res) => c.toBlob((b) => res(b), "image/png"));

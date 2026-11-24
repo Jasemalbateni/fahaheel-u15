@@ -26,9 +26,9 @@
   const short = (p, dup) => { const w = p.name.trim().split(/\s+/); const s = w.length > 2 ? w[0] + " " + w[w.length - 1] : p.name; return dup.has(s) ? p.name : s; };
 
   /* ---------- الملعب ---------- */
-  const pitchSVG = (zones) => `<svg viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true"><rect width="68" height="105" fill="#1d7a46"/>
+  const pitchSVG = (zones) => `<svg viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true"><rect width="68" height="105" fill="${zones ? "#fff" : "#1d7a46"}"/>
     ${zones ? "" : [0, 1, 2, 3, 4, 5, 6].map((i) => `<rect y="${i * 15}" width="68" height="7.5" fill="#fff" opacity=".045"/>`).join("")}
-    <g fill="none" stroke="#fff" stroke-width=".5" opacity=".9"><rect x="1" y="1" width="66" height="103"/><path d="M1 52.5H67"/><circle cx="34" cy="52.5" r="9.15"/>
+    <g fill="none" stroke="${zones ? "#141213" : "#fff"}" stroke-width="${zones ? ".45" : ".5"}" opacity="${zones ? "1" : ".9"}"><rect x="1" y="1" width="66" height="103"/><path d="M1 52.5H67"/><circle cx="34" cy="52.5" r="9.15"/>
     <rect x="13.85" y="1" width="40.3" height="16.5"/><rect x="24.85" y="1" width="18.3" height="5.5"/><path d="M26.7 17.5a9.15 9.15 0 0 0 14.6 0"/>
     <rect x="13.85" y="87.5" width="40.3" height="16.5"/><rect x="24.85" y="98.5" width="18.3" height="5.5"/><path d="M26.7 87.5a9.15 9.15 0 0 1 14.6 0"/></g></svg>`;
 

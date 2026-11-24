@@ -168,3 +168,4 @@ create policy staff_all on public.drawings for all to authenticated using ((sele
 -- قائمة المباراة: معرّفات اللاعبين المستدعين (بدون حد)
 alter table public.events add column if not exists squad jsonb not null default '[]'::jsonb;
 alter table public.events add column if not exists notes_before text;
+alter table public.events add column if not exists card jsonb;

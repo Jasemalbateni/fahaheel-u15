@@ -87,7 +87,7 @@
   let current = "";
   function route() {
     const h = (location.hash || "#today").slice(1);
-    const m = h.match(/^(player|event|attendance|sheet)-(.+)$/);
+    const m = h.match(/^(player|event|attendance|sheet|mcard)-(.+)$/);
     return m ? { name: m[1], arg: m[2] } : { name: V[h] ? h : "today", arg: null };
   }
   function render() {
@@ -99,7 +99,7 @@
     const key = r.name + (r.arg || "");
     const y = key === current ? window.scrollY : 0;
     main.innerHTML = V[r.name](r.arg) || "";
-    const navKey = { player: "players", event: route().from || "calendar" }[r.name] || r.name;
+    const navKey = { player: "players", mcard: "matches", event: route().from || "calendar" }[r.name] || r.name;
     $$("[data-nav]").forEach((a) => a.classList.toggle("on", a.dataset.nav === navKey || (a.dataset.nav === "more" && !["today", "calendar", "attendance", "drills"].includes(navKey) && a.closest(".tabs"))));
     if (After[r.name]) After[r.name](main, r.arg);
     window.scrollTo(0, y);
@@ -413,7 +413,7 @@
       const n = plist.filter((p) => sq.has(p.id)).length;
       html += `<section class="card mt"><h3>قائمة المباراة <span class="sp"></span><small><b class="num">${n}</b> لاعب</small></h3>
         <p class="muted small" style="margin:0 0 10px">اضغط على اللاعب عشان تضيفه للقائمة، واضغط مرة ثانية عشان تشيله.</p>
-        <div class="toolbar no-print"><button type="button" class="b sm red" data-act="sqShare" data-id="${id}">${IC.down} صورة القائمة</button><button type="button" class="b sm" data-act="sqAll" data-id="${id}">${IC.check} اختيار الكل</button><button type="button" class="b sm" data-act="sqClear" data-id="${id}">مسح القائمة</button></div>
+        <div class="toolbar no-print"><a class="b sm dark" href="#mcard-${id}">${IC.drills} بطاقة المباراة والتقرير الفني</a><button type="button" class="b sm red" data-act="sqShare" data-id="${id}">${IC.down} صورة القائمة</button><button type="button" class="b sm" data-act="sqAll" data-id="${id}">${IC.check} اختيار الكل</button><button type="button" class="b sm" data-act="sqClear" data-id="${id}">مسح القائمة</button></div>
         <div class="agrid sq">${plist.map((p) => { const on = sq.has(p.id);
           return `<div class="pc sq ${on ? "present" : ""}" role="button" tabindex="0" data-act="sqTap" data-e="${id}" data-p="${p.id}" aria-pressed="${on}" aria-label="${esc(p.name)} — ${on ? "في القائمة" : "خارج القائمة"}">
             ${p.status && p.status !== "متاح" ? `<span class="flag">${esc(p.status)}</span>` : ""}<span class="nm">${esc(p.name)}</span><span class="st">${on ? "في القائمة ✓" : "اضغط للإضافة"}</span></div>`; }).join("")}</div>

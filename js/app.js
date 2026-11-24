@@ -142,6 +142,7 @@
     Store.on(refresh);
     Store.onStatus(syncStatus);
     render();
+    if (window.FahSeed) setTimeout(() => window.FahSeed(), 800);
   }
 
   /* ---------- login ---------- */

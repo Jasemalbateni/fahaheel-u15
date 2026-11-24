@@ -56,8 +56,9 @@
     const tv = (k, i) => { const v = (c.t[k] || [])[i] || 0; return `<td class="n"><button type="button" class="tb" data-act="mcTally" data-id="${id}" data-k="${k}" data-i="${i}" aria-label="زيادة">${v || ""}</button></td>`; };
 
     return `<div class="mc">
-    <div class="ph no-print"><div class="t"><div class="kick">MATCH REPORT</div><h1>بطاقة المباراة والتقرير الفني</h1><p>${esc("الفحيحيل × " + (e.opponent || ""))} · ${fmtLong(e.date)}</p></div>
-      <div class="acts"><button type="button" class="b red" data-act="mcPrint">${IC.down} طباعة / PDF</button><button type="button" class="b dark" data-act="mcPrintBlank">طباعة نموذج فاضي</button><a class="b" href="#event-${id}">صفحة المباراة</a></div></div>
+    <div class="ph no-print"><div class="t"><div class="kick">MATCH REPORT</div><h1>تقرير المباراة</h1><p>${esc("الفحيحيل × " + (e.opponent || ""))} · ${fmtLong(e.date)}</p></div>
+      <div class="acts"><button type="button" class="b red" data-act="mcSave">${IC.check} حفظ التقرير</button><button type="button" class="b" data-act="mcPrint">${IC.down} طباعة / PDF</button><button type="button" class="b" data-act="mcPrintBlank">طباعة نموذج فاضي</button><a class="b" href="#event-${id}">صفحة المباراة</a></div></div>
+    <p class="muted small no-print" style="margin:-10px 0 14px">عبّه من الموقع أو اطبعه واكتب بالقلم. كل شي تكتبه ينحفظ تلقائياً داخل المباراة، وتقدر ترجع له وتكمل أي وقت.</p>
     ${hasSquad ? "" : `<div class="banner info no-print">ما حددت قائمة المباراة للحين — تقدر تختار من كل اللاعبين، والأفضل تحدد القائمة أولاً من <a href="#event-${id}" style="text-decoration:underline">صفحة المباراة</a> عشان يطلع الاحتياط صح.</div>`}
 
     <section class="card mc-page">${head("بطاقة المباراة")}
@@ -109,6 +110,13 @@
   };
 
   A.mcPrint = () => window.print();
+  /* حفظ يدوي: يثبّت آخر شي انكتب ويأكد للمستخدم */
+  const flush = () => { clearTimeout(tmr); const ae = document.activeElement; if (ae && ae.dataset && ae.dataset.chg === "mcNote") A.mcNote(ae); };
+  let tmr = 0;
+  A.mcSave = () => { flush(); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); toast(navigator.onLine === false ? "انحفظ على الجهاز — يترفع أول ما يرجع النت" : "تم حفظ التقرير"); };
+  /* حفظ تلقائي أثناء الكتابة (بدون انتظار الخروج من الخانة) */
+  document.addEventListener("input", (x) => { const el = x.target; if (!el || !el.dataset || el.dataset.chg !== "mcNote") return; clearTimeout(tmr); tmr = setTimeout(() => { if (document.body.contains(el)) A.mcNote(el); }, 700); });
+  window.addEventListener("hashchange", flush, true); window.addEventListener("pagehide", flush);
   /** يطبع نفس الأوراق لكن كل خانات التحليل فاضية ومسطّرة (التشكيلة تبقى) */
   A.mcPrintBlank = () => { const b = document.body; b.classList.add("mc-blank"); const off = () => { b.classList.remove("mc-blank"); window.removeEventListener("afterprint", off); }; window.addEventListener("afterprint", off); window.print(); setTimeout(off, 60000); };
   A.mcOppForm = (el) => save(el.dataset.id, (c) => { c.of = el.value; });

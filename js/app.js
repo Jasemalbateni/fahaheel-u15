@@ -396,6 +396,7 @@
     if (cancelled) html += `<div class="banner red">هذي ${isM ? "المباراة" : "الحصة"} ملغاة${e.cancel_reason ? " — " + esc(e.cancel_reason) : ""}<span class="sp"></span><button type="button" class="b sm" data-act="evCancel" data-id="${id}">إرجاع للجدول</button></div>`;
     html += `<div class="toolbar no-print">
       ${isT || isM ? `<a class="b red" href="#attendance-${id}">${IC.attendance} ${att.length ? "تعديل الحضور" : "تسجيل الحضور"}</a>` : ""}
+      ${isM ? `<a class="b dark" href="#mcard-${id}">${IC.drills} تقرير المباراة</a>` : ""}
       ${isT ? `<button type="button" class="b dark" data-act="evSheet" data-id="${id}">${IC.drills} ${sh ? "فتح ورقة التمرين" : "إنشاء ورقة التمرين"}</button>` : ""}
       ${!cancelled ? `<button type="button" class="b" data-act="evCancel" data-id="${id}">إلغاء ${isM ? "المباراة" : "الحصة"}</button>` : ""}
       <button type="button" class="b danger" data-act="evDel" data-id="${id}">حذف</button></div>`;
@@ -413,7 +414,7 @@
       const n = plist.filter((p) => sq.has(p.id)).length;
       html += `<section class="card mt"><h3>قائمة المباراة <span class="sp"></span><small><b class="num">${n}</b> لاعب</small></h3>
         <p class="muted small" style="margin:0 0 10px">اضغط على اللاعب عشان تضيفه للقائمة، واضغط مرة ثانية عشان تشيله.</p>
-        <div class="toolbar no-print"><a class="b sm dark" href="#mcard-${id}">${IC.drills} بطاقة المباراة والتقرير الفني</a><button type="button" class="b sm red" data-act="sqShare" data-id="${id}">${IC.down} صورة القائمة</button><button type="button" class="b sm" data-act="sqAll" data-id="${id}">${IC.check} اختيار الكل</button><button type="button" class="b sm" data-act="sqClear" data-id="${id}">مسح القائمة</button></div>
+        <div class="toolbar no-print"><button type="button" class="b sm red" data-act="sqShare" data-id="${id}">${IC.down} صورة القائمة</button><button type="button" class="b sm" data-act="sqAll" data-id="${id}">${IC.check} اختيار الكل</button><button type="button" class="b sm" data-act="sqClear" data-id="${id}">مسح القائمة</button></div>
         <div class="agrid sq">${plist.map((p) => { const on = sq.has(p.id);
           return `<div class="pc sq ${on ? "present" : ""}" role="button" tabindex="0" data-act="sqTap" data-e="${id}" data-p="${p.id}" aria-pressed="${on}" aria-label="${esc(p.name)} — ${on ? "في القائمة" : "خارج القائمة"}">
             ${p.status && p.status !== "متاح" ? `<span class="flag">${esc(p.status)}</span>` : ""}<span class="nm">${esc(p.name)}</span><span class="st">${on ? "في القائمة ✓" : "اضغط للإضافة"}</span></div>`; }).join("")}</div>

@@ -19,7 +19,7 @@
   const HALF = [["b", "بالكرة — البناء والتقدم وإنهاء الهجمة"], ["d", "بدون كرة — الضغط والتنظيم الدفاعي"], ["t", "التحولات — هجومية ودفاعية"], ["s", "الكرات الثابتة — لنا وعلينا"]];
   const ZN = { s: "ق", w: "ض" };
 
-  const cardOf = (e) => { const c = e && e.card && typeof e.card === "object" ? e.card : {}; return { f: F[c.f] ? c.f : "4-3-3", xi: c.xi || {}, n: c.n || {}, z: c.z || {}, t: c.t || {} }; };
+  const cardOf = (e) => { const c = e && e.card && typeof e.card === "object" ? e.card : {}; return { f: F[c.f] ? c.f : "4-3-3", xi: c.xi || {}, n: c.n || {}, z: c.z || {}, t: c.t || {}, of: F[c.of] ? c.of : "", on: c.on || {} }; };
   const save = (id, fn) => { const e = Store.get("events", id); if (!e) return; const c = cardOf(e); fn(c); Store.put("events", { ...e, card: c }); };
   const squadIds = (e) => (Array.isArray(e.squad) ? e.squad.filter((pid) => Store.get("players", pid)) : []);
   const pool = (e) => { const sq = new Set(squadIds(e)); const all = playersSorted(true); return sq.size ? all.filter((p) => sq.has(p.id)) : all.filter((p) => p.active !== false); };
@@ -57,11 +57,11 @@
 
     return `<div class="mc">
     <div class="ph no-print"><div class="t"><div class="kick">MATCH REPORT</div><h1>بطاقة المباراة والتقرير الفني</h1><p>${esc("الفحيحيل × " + (e.opponent || ""))} · ${fmtLong(e.date)}</p></div>
-      <div class="acts"><button type="button" class="b red" data-act="mcPrint">${IC.down} طباعة / PDF</button><a class="b" href="#event-${id}">صفحة المباراة</a></div></div>
+      <div class="acts"><button type="button" class="b red" data-act="mcPrint">${IC.down} طباعة / PDF</button><button type="button" class="b dark" data-act="mcPrintBlank">طباعة نموذج فاضي</button><a class="b" href="#event-${id}">صفحة المباراة</a></div></div>
     ${hasSquad ? "" : `<div class="banner info no-print">ما حددت قائمة المباراة للحين — تقدر تختار من كل اللاعبين، والأفضل تحدد القائمة أولاً من <a href="#event-${id}" style="text-decoration:underline">صفحة المباراة</a> عشان يطلع الاحتياط صح.</div>`}
 
     <section class="card mc-page">${head("بطاقة المباراة")}
-      <div class="toolbar no-print" style="margin-top:14px"><label style="font-weight:700">الخطة</label><select class="search" style="flex:0 0 auto;width:auto;min-width:110px" data-chg="mcForm" data-id="${id}" dir="ltr">${Object.keys(F).map((k) => `<option ${k === c.f ? "selected" : ""}>${k}</option>`).join("")}</select>
+      <div class="toolbar no-print" style="margin-top:14px"><label style="font-weight:700">الخطة</label><select class="search" style="flex:0 0 auto;width:auto;min-width:110px" data-rerender="1" data-chg="mcForm" data-id="${id}" dir="ltr">${Object.keys(F).map((k) => `<option ${k === c.f ? "selected" : ""}>${k}</option>`).join("")}</select>
         <button type="button" class="b sm" data-act="mcStarted" data-id="${id}">${IC.check} اعتماد الأساسيين في الإحصائيات</button><button type="button" class="b sm" data-act="mcClearXI" data-id="${id}">تفريغ التشكيلة</button></div>
       <p class="muted small no-print" style="margin:0 0 10px">اضغط على أي مركز في الملعب واختر اللاعب.</p>
       <div class="mc-grid">
@@ -91,7 +91,11 @@
 
     <section class="card mc-page mt">${head("التحليل أثناء المباراة")}
       <h3 class="mt">الشوط الثاني</h3><div class="mc-notes">${HALF.map(([k, l]) => note("h2" + k, l, "", 3)).join("")}</div>
-      <h3 class="mt">المنافس</h3><div class="mc-notes">${note("oppf", "خطته وطريقة لعبه", "", 3)}${note("oppk", "لاعبيه المؤثرين (الرقم والمركز)", "", 3)}${note("opps", "نقاط قوته", "", 3)}${note("oppw", "نقاط ضعفه وكيف نستغلها", "", 3)}</div>
+      <h3 class="mt">المنافس — ${esc(e.opponent || "")}</h3>
+      <div class="toolbar no-print"><label style="font-weight:700">خطة المنافس</label><select class="search" style="flex:0 0 auto;width:auto;min-width:150px" data-rerender="1" data-chg="mcOppForm" data-id="${id}"><option value="">ملعب فاضي (أرسم بالقلم)</option>${Object.keys(F).map((k) => `<option ${k === c.of ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+      ${c.of ? `<p class="muted small no-print" style="margin:-6px 0 10px">اكتب رقم اللاعب داخل الدائرة.</p>` : ""}
+      <div class="mc-opp"><div><p class="mc-dir">الرسم التكتيكي للمنافس${c.of ? ` · <span class="num" dir="ltr">${c.of}</span>` : ""} · ▲ اتجاه هجومه</p><div class="mc-pitch z opp">${pitchSVG(true)}${c.of ? F[c.of].map((s, i) => `<span class="ot" style="left:${s[1]}%;bottom:${s[2]}%"><input inputmode="numeric" maxlength="2" dir="ltr" aria-label="رقم لاعب المنافس — ${esc(s[0])}" data-chg="mcOppNo" data-id="${id}" data-i="${i}" value="${esc(c.on[i] || "")}"></span>`).join("") : ""}</div></div>
+      <div>${note("oppf", "خطته وطريقة لعبه", "", 3)}${note("oppk", "لاعبيه المؤثرين (الرقم والمركز)", "", 3)}${note("opps", "نقاط قوته", "", 3)}${note("oppw", "نقاط ضعفه وكيف نستغلها", "", 3)}</div></div>
     </section>
 
     <section class="card mc-page mt">${head("مناطق القوة والضعف")}
@@ -105,6 +109,10 @@
   };
 
   A.mcPrint = () => window.print();
+  /** يطبع نفس الأوراق لكن كل خانات التحليل فاضية ومسطّرة (التشكيلة تبقى) */
+  A.mcPrintBlank = () => { const b = document.body; b.classList.add("mc-blank"); const off = () => { b.classList.remove("mc-blank"); window.removeEventListener("afterprint", off); }; window.addEventListener("afterprint", off); window.print(); setTimeout(off, 60000); };
+  A.mcOppForm = (el) => save(el.dataset.id, (c) => { c.of = el.value; });
+  A.mcOppNo = (el) => save(el.dataset.id, (c) => { c.on = { ...c.on, [el.dataset.i]: el.value.trim() }; });
   A.mcNote = (el) => save(el.dataset.id, (c) => { c.n = { ...c.n, [el.dataset.k]: el.value }; });
   A.mcForm = (el) => save(el.dataset.id, (c) => { c.f = el.value; });
   A.mcZone = (el) => save(el.dataset.id, (c) => { const m = el.dataset.m, i = el.dataset.i, z = { ...(c.z[m] || {}) }; const nx = { "": "s", s: "w", w: "" }[z[i] || ""]; if (nx) z[i] = nx; else delete z[i]; c.z = { ...c.z, [m]: z }; });

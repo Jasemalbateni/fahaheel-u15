@@ -95,9 +95,9 @@
     </section>
 
     <section class="card mc-page mt">${head("مناطق القوة والضعف")}
-      <p class="muted small no-print" style="margin:14px 0 0">اضغط على المنطقة: ضغطة = <b style="color:#0f5c33">قوة (ق)</b> · ضغطتين = <b style="color:#b31219">ضعف (ض)</b> · ثلاث = مسح.</p>
+      <p class="muted small no-print" style="margin:14px 0 0">اضغط على المنطقة: ضغطة = <b>ق</b> (قوة) · ضغطتين = <b>ض</b> (ضعف) · ثلاث = مسح. أو اتركه فاضي واكتب عليه بالقلم بعد الطباعة.</p>
       <div class="mc-zones">${zmap("a", "بالكرة — وين نشكّل خطورة ووين نفقد الكرة")}${zmap("d", "بدون كرة — وين نفتك الكرة ووين ينضرب دفاعنا")}</div>
-      <p class="mc-key"><span class="zc s">ق</span> منطقة قوة <span class="zc w">ض</span> منطقة ضعف</p>
+      <p class="mc-key"><b>ق</b> = منطقة قوة <b>ض</b> = منطقة ضعف</p>
       <div class="mc-notes">${note("str", "نقاط قوتنا في المباراة", "", 4)}${note("weak", "نقاط ضعفنا في المباراة", "", 4)}</div>
       ${note("next", "وش نشتغل عليه في التمارين الجاية", "", 3)}
       ${note("best", "أبرز اللاعبين وملاحظات فردية", "", 3)}

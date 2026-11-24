@@ -428,10 +428,9 @@ table.t { width: 100%; border-collapse: collapse; font-size: 14px; }
 .mc-pitch .zg { position: absolute; inset: 0; z-index: 2; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(6, 1fr); direction: ltr; }
 .mc-pitch.z { background: #fff; border-radius: 0; }
 .zc { position: relative; border: 0; box-shadow: inset 0 0 0 .5px #a9a3a5; background: transparent; color: var(--ink); font-family: var(--f-ar); font-size: 15px; font-weight: 900; cursor: pointer; padding: 3px 6px; display: flex; align-items: flex-start; justify-content: flex-end; direction: rtl; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.zc.s { background: rgba(29,122,70,.2); color: #0f5c33; box-shadow: inset 0 0 0 2px #0f5c33; }
-.zc.w { background: rgba(215,25,32,.2); color: #b31219; box-shadow: inset 0 0 0 2px #b31219; }
+.zc.s, .zc.w { font-size: 26px; align-items: center; justify-content: center; padding: 0; }
 .mc-key { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; font-size: 13px; color: var(--ink-2); }
-.mc-key .zc { width: 30px; height: 30px; font-size: 15px; padding: 0; display: inline-grid; place-items: center; cursor: default; border-radius: 6px; } .mc-key .zc.w { margin-inline-start: 14px; }
+.mc-key b { color: var(--ink); font-size: 16px; } .mc-key b + b, .mc-key span { margin-inline-start: 14px; }
 .mc-pick { width: 100%; text-align: right; border: 0; background: none; font: inherit; cursor: pointer; } .mc-pick.cur { background: var(--red-soft); }
 @media (max-width: 760px) {
   .mc-grid, .mc-notes { grid-template-columns: minmax(0, 1fr); }
